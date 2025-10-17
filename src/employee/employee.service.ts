@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
@@ -13,5 +18,55 @@ export class EmployeeService {
     });
 
     return employees;
+  }
+
+  async create(createUserDto: Prisma.employeeCreateInput) {
+    return await this.prisma.employee.create({
+      data: createUserDto,
+    });
+  }
+
+  async findOne(id: number) {
+    console.log('id ', id);
+
+    if (!id) throw new BadRequestException('Employee ID is required.');
+
+    if (isNaN(id))
+      throw new BadRequestException('Employee ID must be a number.');
+
+    const employee = await this.prisma.employee.findUnique({
+      where: {
+        ID: id,
+      },
+    });
+
+    if (!employee) throw new NotFoundException('Employee not found.');
+
+    return employee;
+  }
+
+  async update(
+    id: Prisma.employeeWhereUniqueInput['ID'],
+    updateEmployeeDto: Prisma.employeeUpdateInput,
+  ) {
+    const employee = await this.prisma.employee.findUnique({
+      where: {
+        ID: id,
+      },
+    });
+
+    if (!employee) throw new NotFoundException('Employee not found.');
+
+    const updatedEmployee = await this.prisma.employee.update({
+      where: {
+        ID: id,
+      },
+      data: {
+        ...employee,
+        ...updateEmployeeDto,
+      },
+    });
+
+    return updatedEmployee;
   }
 }
