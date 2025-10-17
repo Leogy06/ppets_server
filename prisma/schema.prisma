@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model department_table {
+  ID              Int       @id @default(autoincrement())
+  DEPARTMENT_NAME String?   @db.Text
+  CODE            String?   @db.VarChar(50)
+  DESCRIPTION     String?   @db.Text
+  OFFICER         String?   @db.VarChar(250)
+  POSITION        String?   @db.VarChar(255)
+  ENTRY_DATE      DateTime? @db.DateTime(0)
+
+  @@index([ID], map: "ID")
+}
+
+model employee {
+  ID             Int       @id @default(autoincrement())
+  ID_NUMBER      Int?
+  FIRSTNAME      String?   @db.VarChar(255)
+  MIDDLENAME     String?   @db.VarChar(255)
+  LASTNAME       String?   @db.VarChar(255)
+  SUFFIX         String?   @db.VarChar(255)
+  DEPARTMENT_ID  Int?
+  CURRENT_DPT_ID Int?
+  CREATED_BY     Int?
+  CREATED_WHEN   DateTime? @db.DateTime(0)
+  UPDATED_BY     Int?
+  UPDATED_WHEN   DateTime? @db.DateTime(0)
+  DELETED        Int?      @db.TinyInt
+}
