@@ -22,7 +22,13 @@ export class EmployeeService {
 
   async create(createUserDto: Prisma.employeeCreateInput) {
     return await this.prisma.employee.create({
-      data: createUserDto,
+      data: {
+        ...createUserDto,
+        CURRENT_DPT_ID: createUserDto.DEPARTMENT_ID,
+        DELETED: 0,
+        // TO DO
+        // ADD CREATED BY BASE ON USER LOGGED IN IN HTTP COOKIE
+      },
     });
   }
 
