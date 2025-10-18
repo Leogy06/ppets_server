@@ -1,0 +1,41 @@
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import type { Response, Request } from 'express';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
+@Controller('api/auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('login')
+  async login(
+    @Body() body: { username: string; password: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.authService.validateUser(
+      body.username,
+      body.password,
+    );
+    return this.authService.login(user, res);
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    return this.authService.logout(res);
+  }
+
+  // 🔒 Protected route
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Req() req: Request) {
+    return req.user;
+  }
+}

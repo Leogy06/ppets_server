@@ -33,4 +33,19 @@ model employee {
   UPDATED_BY     Int?
   UPDATED_WHEN   DateTime? @db.DateTime(0)
   DELETED        Int?      @db.TinyInt
+  users          users[]
+}
+
+model users {
+  id              Int    @id @default(autoincrement())
+  emp_id          Int
+  password        String   @db.VarChar(255)
+  email           String @unique  @db.VarChar(255)
+  role            Int
+  username        String? @unique  @db.VarChar(45)
+  is_active       Int?     @default(1) @db.TinyInt
+  DEPARTMENT_USER Int?
+  employee        employee @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
+
+  @@index([emp_id], map: "emp_id")
 }
