@@ -33,8 +33,6 @@ export class EmployeeService {
   }
 
   async findOne(id: number) {
-    console.log('id ', id);
-
     if (!id) throw new BadRequestException('Employee ID is required.');
 
     if (isNaN(id))

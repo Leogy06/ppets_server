@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -20,9 +24,22 @@ export class UserService {
       },
     });
 
+    if (!isEmployee)
+      throw new BadRequestException('Register user is not employee.');
+
+    //check if email already exist
+    const isEmailExist = await this.prisma.users.findUnique({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+
+    if (isEmailExist) throw new BadRequestException('Email already exist.');
+
     return await this.prisma.users.create({
       data: {
         ...createUserDto,
+        password: bcrypt.hashSync(createUserDto.password, 10),
       },
     });
   }

@@ -12,6 +12,7 @@ import { DepartmentModule } from './department/department.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
     EmployeeModule,
     DatabaseModule,
