@@ -17,7 +17,7 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-    throw new UnauthorizedException('Invalid credentials');
+    throw new UnauthorizedException('Invalid Credentials');
   }
 
   async login(user: any, res: any) {

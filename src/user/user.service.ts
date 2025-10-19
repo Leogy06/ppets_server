@@ -2,6 +2,7 @@ import {
   BadGatewayException,
   BadRequestException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -12,7 +13,9 @@ export class UserService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async findByUsername(username: string) {
-    return await this.prisma.users.findUnique({ where: { username } });
+    return await this.prisma.users.findUnique({
+      where: { username },
+    });
   }
 
   // * CREATE NEW USER
