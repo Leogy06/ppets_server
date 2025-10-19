@@ -6,6 +6,7 @@ import {
   Get,
   UseGuards,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response, Request } from 'express';
@@ -24,7 +25,7 @@ export class AuthController {
       body.username,
       body.password,
     );
-    return this.authService.login(user, res);
+    return await this.authService.loginWithCredentials(user, res);
   }
 
   @Post('logout')
