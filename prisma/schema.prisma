@@ -37,15 +37,40 @@ model employee {
 }
 
 model users {
-  id              Int    @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   emp_id          Int
   password        String   @db.VarChar(255)
-  email           String @unique  @db.VarChar(255)
+  email           String   @unique @db.VarChar(255)
   role            Int
-  username        String? @unique  @db.VarChar(45)
+  username        String?  @unique @db.VarChar(45)
   is_active       Int?     @default(1) @db.TinyInt
   DEPARTMENT_USER Int?
   employee        employee @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
   @@index([emp_id], map: "emp_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model items {
+  ID                Int      @id @unique(map: "ID") @default(autoincrement())
+  ITEM_NAME         String   @db.VarChar(45)
+  DESCRIPTION       String   @db.Text
+  UNIT_VALUE        Decimal  @db.Decimal(10, 2)
+  TOTAL_VALUE       Decimal? @db.Decimal(10, 2)
+  STOCK_QUANTITY    Int
+  ORIGINAL_QUANTITY Int
+  RECEIVED_AT       DateTime @db.DateTime(0)
+  PIS_NO            String?  @db.VarChar(45)
+  PROP_NO           String   @unique(map: "PROP_NO") @db.VarChar(45)
+  SERIAL_NO         String   @unique(map: "SERIAL_NO") @db.VarChar(45)
+  DEPARTMENT_ID     Int
+  REMARKS           String?  @db.Text
+  DELETE            Int?     @default(0) @db.TinyInt
+  createdAt         DateTime @db.DateTime(0)
+  updatedAt         DateTime @db.DateTime(0)
+  PAR_NO            String?  @unique(map: "PAR_NO_UNIQUE") @db.VarChar(45)
+  MR_NO             String?  @db.VarChar(45)
+  ACCOUNT_CODE      Int?
+  ADDED_BY          Int?
+  ICS_NO            String?  @db.VarChar(45)
 }
