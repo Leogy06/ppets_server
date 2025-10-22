@@ -18,7 +18,7 @@ export const createItemSchema = z.object({
   SERIAL_NO: z.string().optional(),
 
   ACCOUNT_CODE: z.number().nonnegative(), // account code id FOREIGN KEY
-  ADDED_BY: z.number(), // EMPLOYEE ID FOREIGN KEY
+  // ADDED_BY: z.number(), // EMPLOYEE ID FOREIGN KEY
   createdAt: z.string(),
   updatedAt: z.string(),
 });
