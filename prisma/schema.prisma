@@ -52,25 +52,23 @@ model users {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model items {
-  ID                Int      @id @unique(map: "ID") @default(autoincrement())
-  ITEM_NAME         String   @db.VarChar(45)
-  DESCRIPTION       String   @db.Text
-  UNIT_VALUE        Decimal  @db.Decimal(10, 2)
-  TOTAL_VALUE       Decimal? @db.Decimal(10, 2)
-  STOCK_QUANTITY    Int
-  ORIGINAL_QUANTITY Int
-  RECEIVED_AT       DateTime @db.DateTime(0)
-  PIS_NO            String?  @db.VarChar(45)
-  PROP_NO           String   @unique(map: "PROP_NO") @db.VarChar(45)
-  SERIAL_NO         String   @unique(map: "SERIAL_NO") @db.VarChar(45)
-  DEPARTMENT_ID     Int
-  REMARKS           String?  @db.Text
-  DELETE            Int?     @default(0) @db.TinyInt
-  createdAt         DateTime @db.DateTime(0)
-  updatedAt         DateTime @db.DateTime(0)
-  PAR_NO            String?  @unique(map: "PAR_NO_UNIQUE") @db.VarChar(45)
-  MR_NO             String?  @db.VarChar(45)
-  ACCOUNT_CODE      Int?
-  ADDED_BY          Int?
-  ICS_NO            String?  @db.VarChar(45)
+  ID            Int       @id @unique(map: "ID") @default(autoincrement())
+  ITEM_NAME     String    @db.VarChar(45)
+  DESCRIPTION   String    @db.Text
+  UNIT_VALUE    Decimal   @db.Decimal(10, 2)
+  QUANTITY      Int
+  RECEIVED_AT   DateTime  @db.DateTime(0)
+  PIS_NO        String?   @unique(map: "PIS_NO_UNIQUE") @db.VarChar(45)
+  PROP_NO       String?   @unique(map: "PROP_NO_UNIQUE") @db.VarChar(45)
+  SERIAL_NO     String?   @unique(map: "SERIAL_NO_UNIQUE") @db.VarChar(45)
+  ICS_NO        String?   @unique(map: "ICS_NO_UNIQUE") @db.VarChar(45)
+  DEPARTMENT_ID Int?
+  REMARKS       String?   @db.Text
+  DELETE        Int?      @default(0) @db.TinyInt
+  PAR_NO        String?   @db.VarChar(45)
+  MR_NO         String?   @db.VarChar(45)
+  ACCOUNT_CODE  Int?
+  ADDED_BY      Int?
+  createdAt     DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt     DateTime? @default(now()) @db.Timestamp(0)
 }
