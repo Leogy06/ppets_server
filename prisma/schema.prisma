@@ -74,12 +74,17 @@ model items {
   ADDED_BY      Int?
   createdAt     DateTime? @default(now()) @db.Timestamp(0)
   updatedAt     DateTime? @default(now()) @db.Timestamp(0)
+  
+  @@index([ITEM_NAME]) // because of filtering in search
+  @@index([DELETE]) // helps filtered out deleted row
+  @@index([ACCOUNT_CODE]) // item can be query by these in group
+  @@index([DEPARTMENT_ID]) // too lookout optimized in department
 }
 
 enum Condition {
   EXCELLENT
   GOOD
   FAIR
-  DEFECTIVE
+  POOR
   REPAIR
 }

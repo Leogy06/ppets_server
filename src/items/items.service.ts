@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Request } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateItemDto } from 'src/schemas/item.schema';
 
@@ -30,7 +31,7 @@ export class ItemsService {
     return { items, count };
   }
 
-  async create(createUserDto: CreateItemDto) {
+  async create(createUserDto: CreateItemDto, req: Request) {
     //check if srn exist
     if (createUserDto?.SERIAL_NO) {
       const exist = await this.prisma.items.findFirst({
@@ -75,8 +76,20 @@ export class ItemsService {
       if (exist) throw new BadRequestException('PROP number already exist.');
     }
 
+    const findEmployee = await this.prisma.employee.findFirst({
+      where: {
+        ID: (req as any)?.user?.employeeId,
+      },
+    });
+
+    if (!findEmployee) throw new BadRequestException('Employee not found.');
+
     const newItem = await this.prisma.items.create({
-      data: createUserDto,
+      data: {
+        ...createUserDto,
+        DEPARTMENT_ID: findEmployee.DEPARTMENT_ID,
+        ADDED_BY: findEmployee.ID,
+      },
     });
 
     return newItem;
