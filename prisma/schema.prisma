@@ -57,6 +57,9 @@ model items {
   DESCRIPTION   String    @db.Text
   UNIT_VALUE    Decimal   @db.Decimal(10, 2)
   QUANTITY      Int
+
+  condition      Condition @default(EXCELLENT)
+
   RECEIVED_AT   DateTime  @db.DateTime(0)
   PIS_NO        String?    @db.VarChar(45)
   PROP_NO       String?    @db.VarChar(45)
@@ -71,4 +74,12 @@ model items {
   ADDED_BY      Int?
   createdAt     DateTime? @default(now()) @db.Timestamp(0)
   updatedAt     DateTime? @default(now()) @db.Timestamp(0)
+}
+
+enum Condition {
+  EXCELLENT
+  GOOD
+  FAIR
+  DEFECTIVE
+  REPAIR
 }
