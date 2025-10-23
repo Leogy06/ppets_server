@@ -5,8 +5,13 @@ export const createItemSchema = z.object({
   //ID: number; no need na
   ITEM_NAME: z.string().min(1, 'Item name is required.'),
   DESCRIPTION: z.string().min(1, 'Description is required'),
-  UNIT_VALUE: z.number().nonnegative(),
-  QUANTITY: z.number().nonnegative(),
+  UNIT_VALUE: z
+    .number()
+    .nonnegative('Unit value of the item should not be negative.')
+    .min(1, 'Unit value is required'),
+  QUANTITY: z
+    .number()
+    .nonnegative('Quantity of the item should not be negative.'),
   // DEPARTMENT_ID: z.number().nonnegative(), no need to validate here, we just put dep id in the backend base on token decoded
   RECEIVED_AT: z.string().min(1, 'Received item date is required.'),
 

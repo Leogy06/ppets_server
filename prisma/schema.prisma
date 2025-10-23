@@ -58,13 +58,13 @@ model items {
   UNIT_VALUE    Decimal   @db.Decimal(10, 2)
   QUANTITY      Int
   RECEIVED_AT   DateTime  @db.DateTime(0)
-  PIS_NO        String?   @unique(map: "PIS_NO_UNIQUE") @db.VarChar(45)
-  PROP_NO       String?   @unique(map: "PROP_NO_UNIQUE") @db.VarChar(45)
-  SERIAL_NO     String?   @unique(map: "SERIAL_NO_UNIQUE") @db.VarChar(45)
-  ICS_NO        String?   @unique(map: "ICS_NO_UNIQUE") @db.VarChar(45)
+  PIS_NO        String?    @db.VarChar(45)
+  PROP_NO       String?    @db.VarChar(45)
+  SERIAL_NO     String?   @db.VarChar(45)
+  ICS_NO        String?   @db.VarChar(45)
   DEPARTMENT_ID Int?
   REMARKS       String?   @db.Text
-  DELETE        Int?      @default(0) @db.TinyInt
+  DELETE        Int      @default(0) @db.TinyInt
   PAR_NO        String?   @db.VarChar(45)
   MR_NO         String?   @db.VarChar(45)
   ACCOUNT_CODE  Int?

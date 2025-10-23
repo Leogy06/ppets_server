@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
@@ -21,8 +22,9 @@ export class ItemsController {
   async findAll(
     @Param('page', ParseIntPipe) page: number,
     @Param('pageSize', ParseIntPipe) pageSize: number,
+    @Query('itemName') itemName?: string,
   ) {
-    return await this.itemServices.findAll(page, pageSize);
+    return await this.itemServices.findAll(page, pageSize, itemName);
   }
 
   @Post()
