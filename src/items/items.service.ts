@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { NotFoundError } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
+import { checkDuplicateField } from 'src/utils/duplicate-checker.util';
 
 @Injectable()
 export class ItemsService {
@@ -37,48 +38,31 @@ export class ItemsService {
   }
 
   async create(createItemDto: CreateItemDto, req: Request) {
-    //check if srn exist
-    if (createItemDto?.SERIAL_NO) {
-      const exist = await this.prisma.items.findFirst({
-        where: {
-          SERIAL_NO: createItemDto.SERIAL_NO,
-        },
+    // 👇 run duplicate checks concurrently
+    const [pisDup, propDup, mrDup, parDup] = await Promise.all([
+      checkDuplicateField(this.prisma, 'items', 'PIS_NO', createItemDto.PIS_NO),
+      checkDuplicateField(
+        this.prisma,
+        'items',
+        'PROP_NO',
+        createItemDto.PROP_NO,
+      ),
+      checkDuplicateField(this.prisma, 'items', 'MR_NO', createItemDto.MR_NO),
+      checkDuplicateField(this.prisma, 'items', 'PAR_NO', createItemDto.PAR_NO),
+    ]);
+
+    // 👇 build custom message if any are duplicated
+    const errors: string[] = [];
+    if (pisDup) errors.push('PIS number already exists.');
+    if (propDup) errors.push('Property number already exists.');
+    if (mrDup) errors.push('MR number already exists.');
+    if (parDup) errors.push('PAR number already exists.');
+
+    if (errors.length > 0) {
+      throw new BadRequestException({
+        message: 'Duplicate fields detected.',
+        errors,
       });
-
-      if (exist) throw new BadRequestException('Serial number already exist.');
-    }
-
-    //check if ICS exist
-    if (createItemDto?.ICS_NO) {
-      const exist = await this.prisma.items.findFirst({
-        where: {
-          ICS_NO: createItemDto.ICS_NO,
-        },
-      });
-
-      if (exist) throw new BadRequestException('ICS number already exist.');
-    }
-
-    //check pis number exist
-    if (createItemDto?.PIS_NO) {
-      const exist = await this.prisma.items.findFirst({
-        where: {
-          PIS_NO: createItemDto.PIS_NO,
-        },
-      });
-
-      if (exist) throw new BadRequestException('PIS number already exist.');
-    }
-
-    //check prop number exist
-    if (createItemDto?.PROP_NO) {
-      const exist = await this.prisma.items.findFirst({
-        where: {
-          PROP_NO: createItemDto.PROP_NO,
-        },
-      });
-
-      if (exist) throw new BadRequestException('PROP number already exist.');
     }
 
     const findEmployee = await this.prisma.employee.findFirst({
@@ -110,6 +94,51 @@ export class ItemsService {
         ID: true,
       },
     });
+
+    const [pisDup, propDup, mrDup, parDup] = await Promise.all([
+      checkDuplicateField(
+        this.prisma,
+        'items',
+        'PIS_NO',
+        updateItem.PIS_NO,
+        itemId,
+      ),
+      checkDuplicateField(
+        this.prisma,
+        'items',
+        'PROP_NO',
+        updateItem.PROP_NO,
+        itemId,
+      ),
+      checkDuplicateField(
+        this.prisma,
+        'items',
+        'MR_NO',
+        updateItem.MR_NO,
+        itemId,
+      ),
+      checkDuplicateField(
+        this.prisma,
+        'items',
+        'PAR_NO',
+        updateItem.PAR_NO,
+        itemId,
+      ),
+    ]);
+
+    // 👇 build custom message if any are duplicated
+    const errors: string[] = [];
+    if (pisDup) errors.push('PIS number already exists.');
+    if (propDup) errors.push('Property number already exists.');
+    if (mrDup) errors.push('MR number already exists.');
+    if (parDup) errors.push('PAR number already exists.');
+
+    if (errors.length > 0) {
+      throw new BadRequestException({
+        message: 'Duplicate fields detected.',
+        errors,
+      });
+    }
 
     if (!findItem) throw new NotFoundException('Item does not exist.');
 

@@ -4,7 +4,7 @@ import { Condition } from '@prisma/client';
 
 export const createItemSchema = z
   .object({
-    ID: z.number(), //to reveal id in the frontend
+    ID: z.number().optional(), //to reveal id in the frontend
     ITEM_NAME: z.string().min(1, 'Item name is required.'),
     DESCRIPTION: z.string().min(1, 'Description is required'),
     UNIT_VALUE: z
@@ -31,12 +31,18 @@ export const createItemSchema = z
     updatedAt: z.string(),
 
     REMARKS: z.string().optional(),
-    condition: z.enum(Condition),
+    // condition: z.enum(Condition).optional(),
   })
   .strict();
 
 export class CreateItemDto extends createZodDto(createItemSchema) {}
 
-export const updateItemSchema = createItemSchema.partial().strict();
+export const updateItemSchema = createItemSchema
+  .partial()
+  .extend({
+    condition: z.enum(Condition),
+    ID: z.number().nonnegative(),
+  })
+  .strict();
 
 export class UpdateItemDto extends createZodDto(updateItemSchema) {}
