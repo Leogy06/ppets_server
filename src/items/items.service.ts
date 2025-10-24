@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Request } from 'express';
+import { NotFoundError } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateItemDto } from 'src/schemas/item.schema';
+import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
 
 @Injectable()
 export class ItemsService {
@@ -31,12 +36,12 @@ export class ItemsService {
     return { items, count };
   }
 
-  async create(createUserDto: CreateItemDto, req: Request) {
+  async create(createItemDto: CreateItemDto, req: Request) {
     //check if srn exist
-    if (createUserDto?.SERIAL_NO) {
+    if (createItemDto?.SERIAL_NO) {
       const exist = await this.prisma.items.findFirst({
         where: {
-          SERIAL_NO: createUserDto.SERIAL_NO,
+          SERIAL_NO: createItemDto.SERIAL_NO,
         },
       });
 
@@ -44,10 +49,10 @@ export class ItemsService {
     }
 
     //check if ICS exist
-    if (createUserDto?.ICS_NO) {
+    if (createItemDto?.ICS_NO) {
       const exist = await this.prisma.items.findFirst({
         where: {
-          ICS_NO: createUserDto.ICS_NO,
+          ICS_NO: createItemDto.ICS_NO,
         },
       });
 
@@ -55,10 +60,10 @@ export class ItemsService {
     }
 
     //check pis number exist
-    if (createUserDto?.PIS_NO) {
+    if (createItemDto?.PIS_NO) {
       const exist = await this.prisma.items.findFirst({
         where: {
-          PIS_NO: createUserDto.PIS_NO,
+          PIS_NO: createItemDto.PIS_NO,
         },
       });
 
@@ -66,10 +71,10 @@ export class ItemsService {
     }
 
     //check prop number exist
-    if (createUserDto?.PROP_NO) {
+    if (createItemDto?.PROP_NO) {
       const exist = await this.prisma.items.findFirst({
         where: {
-          PROP_NO: createUserDto.PROP_NO,
+          PROP_NO: createItemDto.PROP_NO,
         },
       });
 
@@ -86,12 +91,38 @@ export class ItemsService {
 
     const newItem = await this.prisma.items.create({
       data: {
-        ...createUserDto,
+        ...createItemDto,
         DEPARTMENT_ID: findEmployee.DEPARTMENT_ID,
         ADDED_BY: findEmployee.ID,
       },
     });
 
     return newItem;
+  }
+
+  async update(updateItem: UpdateItemDto, itemId: number) {
+    //check if item exist
+    const findItem = await this.prisma.items.findUnique({
+      where: {
+        ID: itemId,
+      },
+      select: {
+        ID: true,
+      },
+    });
+
+    if (!findItem) throw new NotFoundException('Item does not exist.');
+
+    const updatedItem = await this.prisma.items.update({
+      where: {
+        ID: itemId,
+      },
+      data: {
+        ...updateItem,
+        updatedAt: new Date(), // current date
+      },
+    });
+
+    return updatedItem;
   }
 }

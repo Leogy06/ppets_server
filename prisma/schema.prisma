@@ -57,28 +57,35 @@ model items {
   DESCRIPTION   String    @db.Text
   UNIT_VALUE    Decimal   @db.Decimal(10, 2)
   QUANTITY      Int
-
-  condition      Condition @default(EXCELLENT)
-
   RECEIVED_AT   DateTime  @db.DateTime(0)
-  PIS_NO        String?    @db.VarChar(45)
-  PROP_NO       String?    @db.VarChar(45)
+  PIS_NO        String?   @db.VarChar(45)
+  PROP_NO       String?   @db.VarChar(45)
   SERIAL_NO     String?   @db.VarChar(45)
   ICS_NO        String?   @db.VarChar(45)
   DEPARTMENT_ID Int?
   REMARKS       String?   @db.Text
-  DELETE        Int      @default(0) @db.TinyInt
+  DELETE        Int       @default(0) @db.TinyInt
   PAR_NO        String?   @db.VarChar(45)
   MR_NO         String?   @db.VarChar(45)
   ACCOUNT_CODE  Int?
   ADDED_BY      Int?
   createdAt     DateTime? @default(now()) @db.Timestamp(0)
   updatedAt     DateTime? @default(now()) @db.Timestamp(0)
-  
-  @@index([ITEM_NAME]) // because of filtering in search
-  @@index([DELETE]) // helps filtered out deleted row
-  @@index([ACCOUNT_CODE]) // item can be query by these in group
-  @@index([DEPARTMENT_ID]) // too lookout optimized in department
+  condition     Condition @default(EXCELLENT)
+
+  @@index([ITEM_NAME])
+  @@index([DELETE])
+  @@index([ACCOUNT_CODE])
+  @@index([DEPARTMENT_ID])
+}
+
+model account_item_tbl {
+  ID            Int       @id @unique(map: "ID_UNIQUE") @default(autoincrement())
+  ACCOUNT_CODE  String    @db.VarChar(45)
+  ACCOUNT_TITLE String    @db.VarChar(90)
+  createdAt     DateTime? @default(now()) @db.DateTime(0)
+  updatedAt     DateTime? @default(now()) @db.DateTime(0)
+  DELETED       Int?      @default(0) @db.TinyInt
 }
 
 enum Condition {
@@ -87,4 +94,5 @@ enum Condition {
   FAIR
   POOR
   REPAIR
+  MAINTENANCE
 }
