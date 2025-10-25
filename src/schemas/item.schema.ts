@@ -31,7 +31,7 @@ export const createItemSchema = z
     updatedAt: z.string(),
 
     REMARKS: z.string().optional(),
-    // condition: z.enum(Condition).optional(),
+    DELETE: z.number().nonnegative(),
   })
   .strict();
 
@@ -40,8 +40,8 @@ export class CreateItemDto extends createZodDto(createItemSchema) {}
 export const updateItemSchema = createItemSchema
   .partial()
   .extend({
-    condition: z.enum(Condition),
-    ID: z.number().nonnegative(),
+    condition: z.enum(Condition).optional(),
+    ID: z.number().nonnegative().optional(),
   })
   .strict();
 
