@@ -31,7 +31,7 @@ export const createItemSchema = z
     updatedAt: z.string(),
 
     REMARKS: z.string().optional(),
-    DELETE: z.number().nonnegative(),
+    DELETE: z.number().nonnegative().optional(),
   })
   .strict();
 
