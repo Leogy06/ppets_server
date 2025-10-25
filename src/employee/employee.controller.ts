@@ -14,7 +14,9 @@ import { EmployeeService } from './employee.service';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
+import { CreateEmployeeDto } from 'src/schemas/employee.schema';
 
+@UseGuards(JwtAuthGuard)
 @Controller('api/employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
@@ -36,8 +38,11 @@ export class EmployeeController {
   }
 
   @Post()
-  async create(@Body() createUserDto: Prisma.employeeCreateInput) {
-    return await this.employeeService.create(createUserDto);
+  async create(
+    @Body() createEmployeeDto: CreateEmployeeDto,
+    @Req() req: ExtendRequest,
+  ) {
+    return await this.employeeService.create(createEmployeeDto, req);
   }
 
   @Get(':id')

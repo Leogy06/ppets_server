@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateEmployeeDto } from 'src/schemas/employee.schema';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @Injectable()
@@ -36,12 +37,18 @@ export class EmployeeService {
         DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
         ...(employeeName && employeeName.trim() !== ''
           ? {
-              LASTNAME: {
-                contains: employeeName,
-              },
-              FIRSTNAME: {
-                contains: employeeName,
-              },
+              OR: [
+                {
+                  LASTNAME: {
+                    contains: employeeName,
+                  },
+                },
+                {
+                  FIRSTNAME: {
+                    contains: employeeName,
+                  },
+                },
+              ],
             }
           : {}),
       },
@@ -53,14 +60,35 @@ export class EmployeeService {
     return { employees, count };
   }
 
-  async create(createUserDto: Prisma.employeeCreateInput) {
+  async create(createEmployeeDto: CreateEmployeeDto, req: ExtendRequest) {
+    const loggedInEmployee = await this.prisma.employee.findUnique({
+      where: {
+        ID: req.user.employeeId,
+      },
+    });
+
+    if (!loggedInEmployee)
+      throw new NotFoundException('Employee logged in not found.');
+
+    //check if id number already exist
+    const isIdNumberDup = await this.prisma.employee.findFirst({
+      where: {
+        ID_NUMBER: createEmployeeDto.ID_NUMBER,
+      },
+    });
+
+    if (isIdNumberDup)
+      throw new BadRequestException('ID number already exist.');
+
     return await this.prisma.employee.create({
       data: {
-        ...createUserDto,
-        CURRENT_DPT_ID: createUserDto.DEPARTMENT_ID,
+        ...createEmployeeDto,
+        CURRENT_DPT_ID: loggedInEmployee?.DEPARTMENT_ID,
+        DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
         DELETED: 0,
-        // TO DO
-        // ADD CREATED BY BASE ON USER LOGGED IN IN HTTP COOKIE
+        CREATED_BY: loggedInEmployee.ID,
+        CREATED_WHEN: new Date(),
+        UPDATED_WHEN: new Date(),
       },
     });
   }
