@@ -6,20 +6,33 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @Controller('api/employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  async findAll() {
-    return await this.employeeService.findAll();
+  @Get(':pageIndex/:pageSize')
+  async findAll(
+    @Param('pageIndex', ParseIntPipe) pageIndex: number,
+    @Param('pageSize', ParseIntPipe) pageSize: number,
+    @Query('employeeName') employeeName: string,
+    @Req() req: ExtendRequest,
+  ) {
+    return await this.employeeService.findAll(
+      pageIndex,
+      pageSize,
+      req,
+      employeeName,
+    );
   }
 
   @Post()
