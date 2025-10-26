@@ -15,6 +15,10 @@ export class AuthService {
   async validateUser(username: string, pass: string) {
     const user = await this.userService.findByUsername(username);
 
+    //check if user is active
+    if (user && user.is_active === 0)
+      throw new UnauthorizedException('This user has been deactivated.');
+
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;
       return result;

@@ -46,4 +46,39 @@ export class UserService {
       },
     });
   }
+
+  //get user employee
+  async getUserEmployee(empId: number) {
+    if (!empId) throw new BadRequestException('Employee ID is required.');
+
+    const employee = await this.prisma.employee.findUnique({
+      where: {
+        ID: empId,
+      },
+      select: {
+        FIRSTNAME: true,
+        LASTNAME: true,
+        MIDDLENAME: true,
+        SUFFIX: true,
+      },
+    });
+
+    if (!employee) throw new NotFoundException('Employee not found.');
+
+    const userProfiles = await this.prisma.users.findMany({
+      where: {
+        emp_id: empId,
+      },
+    });
+
+    //exclude password and employee id
+    const sanitizedProfile = userProfiles.map(
+      ({ password, emp_id, ...rest }) => rest,
+    );
+
+    return {
+      employee,
+      userProfiles: sanitizedProfile,
+    };
+  }
 }

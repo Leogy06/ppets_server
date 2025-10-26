@@ -14,3 +14,12 @@ export const createEmployeeSchema = z
   .strict();
 
 export class CreateEmployeeDto extends createZodDto(createEmployeeSchema) {}
+
+export const updateEmployeeSchema = createEmployeeSchema
+  .partial()
+  .extend({
+    ID: z.number().min(1, 'ID is required, must be a number and non-negative'),
+  })
+  .strict();
+
+export class UpdateEmployeeDto extends createZodDto(updateEmployeeSchema) {}

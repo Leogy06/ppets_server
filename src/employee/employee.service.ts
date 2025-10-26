@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateEmployeeDto } from 'src/schemas/employee.schema';
+import {
+  CreateEmployeeDto,
+  UpdateEmployeeDto,
+} from 'src/schemas/employee.schema';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @Injectable()
@@ -28,12 +31,14 @@ export class EmployeeService {
 
     const count = await this.prisma.employee.count({
       where: {
+        DELETED: 0,
         DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
       },
     });
 
     const employees = await this.prisma.employee.findMany({
       where: {
+        DELETED: 0,
         DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
         ...(employeeName && employeeName.trim() !== ''
           ? {
@@ -58,6 +63,56 @@ export class EmployeeService {
     });
 
     return { employees, count };
+  }
+
+  async findAllArchived(
+    pageIndex: number = 1,
+    pageSize: number = 5,
+    req: ExtendRequest,
+    employeeName?: string,
+  ) {
+    const skip = (pageIndex - 1) * pageSize;
+
+    const loggedInEmployee = await this.prisma.employee.findUnique({
+      where: {
+        ID: req.user.employeeId,
+      },
+    });
+
+    const count = await this.prisma.employee.count({
+      where: {
+        DELETED: 1,
+        DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
+      },
+    });
+
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        DELETED: 1,
+        DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
+        ...(employeeName && employeeName.trim() !== ''
+          ? {
+              OR: [
+                {
+                  LASTNAME: {
+                    contains: employeeName,
+                  },
+                },
+                {
+                  FIRSTNAME: {
+                    contains: employeeName,
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      skip,
+      take: pageSize,
+      orderBy: { LASTNAME: 'asc' },
+    });
+
+    return { count, employees };
   }
 
   async create(createEmployeeDto: CreateEmployeeDto, req: ExtendRequest) {
@@ -111,8 +166,9 @@ export class EmployeeService {
   }
 
   async update(
-    id: Prisma.employeeWhereUniqueInput['ID'],
-    updateEmployeeDto: Prisma.employeeUpdateInput,
+    id: number,
+    updateEmployeeDto: UpdateEmployeeDto,
+    req: ExtendRequest,
   ) {
     const employee = await this.prisma.employee.findUnique({
       where: {
@@ -127,11 +183,72 @@ export class EmployeeService {
         ID: id,
       },
       data: {
-        ...employee,
         ...updateEmployeeDto,
+        UPDATED_BY: req.user.employeeId, // update by admin
+        UPDATED_WHEN: new Date(), // update now
       },
     });
 
     return updatedEmployee;
+  }
+
+  async delete(employeeId: number, req: ExtendRequest) {
+    if (!employeeId) throw new BadRequestException('Employee ID is missing.');
+
+    //deactivates employee's accounts
+    const deactEmployeeAccounts = await this.prisma.users.updateMany({
+      where: {
+        emp_id: employeeId,
+      },
+      data: {
+        is_active: 0,
+      },
+    });
+    //deactivate employee
+    const deactEmployee = await this.prisma.employee.update({
+      where: {
+        ID: employeeId,
+      },
+      data: {
+        DELETED: 1,
+        UPDATED_BY: req.user.employeeId,
+        UPDATED_WHEN: new Date(),
+      },
+    });
+
+    return {
+      deactEmployeeAccounts,
+      deactEmployee,
+    };
+  }
+
+  async restore(employeeId: number, req: ExtendRequest) {
+    if (!employeeId) throw new BadRequestException('Employee ID is missing.');
+
+    //restores employee's accounts
+    const restoreEmployeeAccounts = await this.prisma.users.updateMany({
+      where: {
+        emp_id: employeeId,
+      },
+      data: {
+        is_active: 1, // restore
+      },
+    });
+    //restore employee
+    const restoreEmployee = await this.prisma.employee.update({
+      where: {
+        ID: employeeId,
+      },
+      data: {
+        DELETED: 0, //restore 0
+        UPDATED_BY: req.user.employeeId,
+        UPDATED_WHEN: new Date(),
+      },
+    });
+
+    return {
+      restoreEmployeeAccounts,
+      restoreEmployee,
+    };
   }
 }
