@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { DepartmentModule } from './department/department.module';
 import { ItemsModule } from './items/items.module';
 import { AccountCodesModule } from './account_codes/account_codes.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AccountCodesModule } from './account_codes/account_codes.module';
     DepartmentModule,
     ItemsModule,
     AccountCodesModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

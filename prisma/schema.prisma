@@ -34,6 +34,7 @@ model employee {
   UPDATED_WHEN   DateTime? @db.DateTime(0)
   DELETED        Int?      @db.TinyInt
   users          users[]
+  transactions Transaction[]
 }
 
 model users {
@@ -72,6 +73,7 @@ model items {
   createdAt     DateTime? @default(now()) @db.Timestamp(0)
   updatedAt     DateTime? @default(now()) @db.Timestamp(0)
   condition     Condition @default(EXCELLENT)
+  transactions Transaction[]
 
   @@index([ITEM_NAME])
   @@index([DELETE])
@@ -95,4 +97,25 @@ enum Condition {
   POOR
   REPAIR
   MAINTENANCE
+}
+
+model Transaction {
+  id String @id @default(uuid())
+  status Status @default(PENDING)
+  reason String @db.VarChar(255)
+  employeeId Int
+  employee employee @relation(fields: [employeeId], references:[ID])
+  itemId Int 
+  item items @relation(fields: [itemId], references: [ID])
+  quantity Int
+  reviewedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+enum Status{
+  APPROVED
+  PENDING
+  REJECTED
+  CANCEL
 }
