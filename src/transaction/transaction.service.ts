@@ -27,7 +27,13 @@ export class TransactionService {
 
     return newTransaction;
   }
-  async getTransaction(employeeId: number) {
+  async getTransaction(
+    employeeId: number,
+    pageSize: number,
+    pageIndex: number,
+  ) {
+    const skip = pageSize * (pageIndex - 1);
+
     const employee = await this.prisma.employee.findUnique({
       where: {
         ID: employeeId,
@@ -36,12 +42,41 @@ export class TransactionService {
 
     if (!employee) throw new NotFoundException('Employee not found.');
 
-    return await this.prisma.transaction.findMany({
+    const count = await this.prisma.transaction.count({
       where: {
         employee: {
           DEPARTMENT_ID: employee.DEPARTMENT_ID,
         },
       },
     });
+
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        employee: {
+          DEPARTMENT_ID: employee.DEPARTMENT_ID,
+        },
+      },
+      include: {
+        item: {
+          select: {
+            ITEM_NAME: true,
+          },
+        },
+        employee: {
+          select: {
+            FIRSTNAME: true,
+            LASTNAME: true,
+            MIDDLENAME: true,
+            SUFFIX: true,
+          },
+        },
+      },
+
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return { transactions, count };
   }
 }
