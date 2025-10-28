@@ -48,6 +48,7 @@ model users {
   DEPARTMENT_USER Int?
   employee        employee @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
+  transactions Transaction[]
   @@index([emp_id], map: "emp_id")
 }
 
@@ -111,6 +112,8 @@ model Transaction {
   reviewedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  updatedBy Int?
+  updater users? @relation(fields: [updatedBy], references: [id])
 }
 
 enum Status{

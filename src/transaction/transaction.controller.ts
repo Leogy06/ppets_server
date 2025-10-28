@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { CreateTransactionDto } from 'src/schemas/transaction.schema';
 import { TransactionService } from './transaction.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
+import { Status } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller('api/transaction')
@@ -37,6 +39,19 @@ export class TransactionController {
       employeeId,
       pageSize,
       pageIndex,
+    );
+  }
+
+  @Put('update-status/:transactionId')
+  async updateTransactionStatus(
+    @Param('transactionId') transactionId: string,
+    @Req() req: ExtendRequest,
+    @Body('status') status: Status,
+  ) {
+    return await this.transactionService.updateStatus(
+      status,
+      transactionId,
+      req,
     );
   }
 }

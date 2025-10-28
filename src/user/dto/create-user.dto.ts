@@ -14,5 +14,8 @@ export class CreateUserDto {
 export class ExtendRequest extends Request {
   user: {
     employeeId: number;
+    id: number;
+    sub: number;
+    userId: number;
   };
 }

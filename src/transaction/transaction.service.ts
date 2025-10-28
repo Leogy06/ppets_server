@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Status } from '@prisma/client';
 import e from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateTransactionDto } from 'src/schemas/transaction.schema';
+import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class TransactionService {
@@ -78,5 +84,31 @@ export class TransactionService {
     });
 
     return { transactions, count };
+  }
+  async updateStatus(
+    status: Status,
+    transactionId: string,
+    req: ExtendRequest,
+  ) {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: {
+        id: transactionId,
+      },
+    });
+
+    if (!transaction) throw new NotFoundException('Transaction not found.');
+    if (transaction.status !== Status.PENDING)
+      throw new BadRequestException('Status is not pending anymore.');
+
+    return await this.prisma.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        status,
+        updatedAt: new Date(),
+        updatedBy: req.user.userId,
+      },
+    });
   }
 }
