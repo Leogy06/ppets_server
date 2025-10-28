@@ -12,7 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
-import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
 import {

@@ -39,7 +39,7 @@ export class EmployeeService {
     const employees = await this.prisma.employee.findMany({
       where: {
         DELETED: 0,
-        DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
+        CURRENT_DPT_ID: loggedInEmployee?.DEPARTMENT_ID,
         ...(employeeName && employeeName.trim() !== ''
           ? {
               OR: [
