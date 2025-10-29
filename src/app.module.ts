@@ -10,6 +10,7 @@ import { DepartmentModule } from './department/department.module';
 import { ItemsModule } from './items/items.module';
 import { AccountCodesModule } from './account_codes/account_codes.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ItemsModule,
     AccountCodesModule,
     TransactionModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
