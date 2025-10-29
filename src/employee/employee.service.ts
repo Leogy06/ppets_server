@@ -29,17 +29,19 @@ export class EmployeeService {
       },
     });
 
+    if (!loggedInEmployee) throw new NotFoundException('Employee not found.');
+
     const count = await this.prisma.employee.count({
       where: {
         DELETED: 0,
-        DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
+        CURRENT_DPT_ID: loggedInEmployee?.CURRENT_DPT_ID,
       },
     });
 
     const employees = await this.prisma.employee.findMany({
       where: {
         DELETED: 0,
-        CURRENT_DPT_ID: loggedInEmployee?.DEPARTMENT_ID,
+        CURRENT_DPT_ID: loggedInEmployee?.CURRENT_DPT_ID,
         ...(employeeName && employeeName.trim() !== ''
           ? {
               OR: [
@@ -250,5 +252,15 @@ export class EmployeeService {
       restoreEmployeeAccounts,
       restoreEmployee,
     };
+  }
+
+  async createMany(createEmployeeDto: CreateEmployeeDto[]) {
+    return await this.prisma.employee.createMany({
+      data: createEmployeeDto.map((emp) => ({
+        ...emp,
+        CREATED_WHEN: new Date(),
+      })),
+      skipDuplicates: true,
+    });
   }
 }

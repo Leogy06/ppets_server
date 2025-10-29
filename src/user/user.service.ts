@@ -31,13 +31,22 @@ export class UserService {
       throw new BadRequestException('Register user is not employee.');
 
     //check if email already exist
-    const isEmailExist = await this.prisma.users.findUnique({
-      where: {
-        email: createUserDto.email,
-      },
-    });
+    const [isEmailExist, isUsernameExist] = await Promise.all([
+      await this.prisma.users.findUnique({
+        where: {
+          email: createUserDto.email,
+        },
+      }),
+      await this.prisma.users.findUnique({
+        where: {
+          username: createUserDto.username,
+        },
+      }),
+    ]);
 
     if (isEmailExist) throw new BadRequestException('Email already exist.');
+    if (isUsernameExist)
+      throw new BadRequestException('Username already exist.');
 
     return await this.prisma.users.create({
       data: {

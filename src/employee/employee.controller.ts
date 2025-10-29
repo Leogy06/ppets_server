@@ -62,7 +62,7 @@ export class EmployeeController {
     return await this.employeeService.create(createEmployeeDto, req);
   }
 
-  @Get(':id')
+  @Get('find/:id')
   async findOne(
     @Param('id', ParseIntPipe)
     id: number,
@@ -96,5 +96,10 @@ export class EmployeeController {
     @Req() req: ExtendRequest,
   ) {
     return await this.employeeService.restore(employeeId, req);
+  }
+
+  @Post('create-many')
+  async createMany(@Body() createEmployeeDto: CreateEmployeeDto[]) {
+    return await this.employeeService.createMany(createEmployeeDto);
   }
 }
