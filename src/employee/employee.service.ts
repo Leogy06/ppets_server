@@ -64,7 +64,7 @@ export class EmployeeService {
       orderBy: { LASTNAME: 'asc' },
     });
 
-    return { employees, count };
+    return { count, employees };
   }
 
   async findAllArchived(
