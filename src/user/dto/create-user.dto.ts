@@ -17,6 +17,6 @@ export class ExtendRequest extends Request {
     id: number;
     sub: number;
     userId: number;
+    role: number;
   };
-  employeeId: number;
 }
