@@ -117,6 +117,7 @@ export class EmployeeService {
     return { count, employees };
   }
 
+  //create employee by admin
   async create(createEmployeeDto: CreateEmployeeDto, req: ExtendRequest) {
     const loggedInEmployee = await this.prisma.employee.findUnique({
       where: {
@@ -261,6 +262,26 @@ export class EmployeeService {
         CREATED_WHEN: new Date(),
       })),
       skipDuplicates: true,
+    });
+  }
+
+  //register employee by employees
+  //role is employee by default
+  async registerEmployee(registerEmployeeDto: CreateEmployeeDto) {
+    //check if the creating user is an employee
+    const employee = await this.prisma.employee.findFirst({
+      where: {
+        ID_NUMBER: registerEmployeeDto.ID_NUMBER,
+      },
+    });
+
+    if (!employee)
+      throw new NotFoundException(
+        'ID number is not in the registered employees.',
+      );
+
+    return await this.prisma.employee.create({
+      data: registerEmployeeDto,
     });
   }
 }

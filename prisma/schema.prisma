@@ -134,3 +134,16 @@ enum Read {
   READ
   UNREAD
 }
+
+model Account_request {
+  id String @id @default(uuid())
+  requestedAt DateTime @default(now())
+  approvedAt DateTime?
+  employeeId Int
+  approve Approved @default(NO)
+}
+
+enum Approved {
+  NO
+  YES
+}
