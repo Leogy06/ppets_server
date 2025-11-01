@@ -11,6 +11,7 @@ import { ItemsModule } from './items/items.module';
 import { AccountCodesModule } from './account_codes/account_codes.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { NotificationModule } from './notification/notification.module';
+import { AccountRequestsModule } from './account_requests/account_requests.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { NotificationModule } from './notification/notification.module';
     AccountCodesModule,
     TransactionModule,
     NotificationModule,
+    AccountRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
