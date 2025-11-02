@@ -91,4 +91,22 @@ export class UserService {
       userProfiles: sanitizedProfile,
     };
   }
+
+  //update user active status
+  async updateUserActiveStatus(userId: number, status: number) {
+    //CHECK ROLE
+
+    //check if status value is VALID
+    if (![0, 1].includes(status))
+      throw new BadRequestException('Invalid status value');
+
+    //check if user exist
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found.');
+  }
 }
