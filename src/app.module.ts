@@ -12,6 +12,9 @@ import { AccountCodesModule } from './account_codes/account_codes.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { NotificationModule } from './notification/notification.module';
 import { AccountRequestsModule } from './account_requests/account_requests.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
