@@ -39,4 +39,13 @@ export class UserController {
   ) {
     return this.userService.updateUserActiveStatus(userId, activeStatus);
   }
+
+  @Post('create/user-employee')
+  @Roles(1) // admin only
+  async adminCreatUser(
+    @Body('empId') empId: number,
+    @Body('role') role: number,
+  ) {
+    return await this.userService.adminCreateUser(empId, role);
+  }
 }

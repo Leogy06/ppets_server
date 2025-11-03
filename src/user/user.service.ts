@@ -118,10 +118,46 @@ export class UserService {
     });
   }
 
-  async adminCreateUser(empId: number) {
+  async adminCreateUser(empId: number, role: number) {
     const employee = await this.prisma.employee.findUnique({
       where: {
         ID: empId,
+      },
+    });
+
+    if (!employee) throw new NotFoundException("Employee doesn't exist.");
+
+    //lets checkl if user has account already
+
+    const isEmployeeUser = await this.prisma.users.findFirst({
+      where: {
+        emp_id: empId,
+        role,
+      },
+    });
+
+    if (isEmployeeUser)
+      throw new BadRequestException('Employee already have an account.');
+
+    //hash paspassword
+    const hashedPassword = bcrypt.hashSync(employee.ID_NUMBER?.toString(), 10);
+
+    //username
+    let username: string;
+    if (role === 1) {
+      username = `${employee.ID_NUMBER}_admin`.trim();
+    } else if (role === 2) {
+      username = `${employee.ID_NUMBER}_employee`.trim();
+    } else {
+      throw new BadRequestException('Role value is invalid.');
+    }
+
+    return this.prisma.users.create({
+      data: {
+        username,
+        password: hashedPassword,
+        role,
+        emp_id: empId,
       },
     });
   }
