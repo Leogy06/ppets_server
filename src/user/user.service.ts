@@ -97,7 +97,7 @@ export class UserService {
   async updateUserActiveStatus(userId: number, status: number) {
     //check if status value is VALID
     if (![0, 1].includes(status))
-      throw new BadRequestException('Invalid status value');
+      throw new BadRequestException('Invalid active status value');
 
     //check if user exist
     const user = await this.prisma.users.findUnique({
@@ -107,6 +107,15 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User not found.');
+
+    return await this.prisma.users.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        is_active: status,
+      },
+    });
   }
 
   async adminCreateUser(empId: number) {

@@ -27,10 +27,16 @@ export class UserController {
 
   @Get('user-employee/:empId')
   @Roles(1)
-  async userEmployee(
-    @Param('empId', ParseIntPipe) empId: number,
-    @Req() req: ExtendRequest,
-  ) {
+  async userEmployee(@Param('empId', ParseIntPipe) empId: number) {
     return await this.userService.getUserEmployee(empId);
+  }
+
+  @Put('update/active-status/:userId')
+  @Roles(1)
+  async updateActiveStatus(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body('activeStatus') activeStatus: number,
+  ) {
+    return this.userService.updateUserActiveStatus(userId, activeStatus);
   }
 }
