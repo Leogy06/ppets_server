@@ -21,7 +21,7 @@ model department_table {
 
 model employee {
   ID             Int       @id @default(autoincrement())
-  ID_NUMBER      Int?
+  ID_NUMBER      Int
   FIRSTNAME      String?   @db.VarChar(255)
   MIDDLENAME     String?   @db.VarChar(255)
   LASTNAME       String?   @db.VarChar(255)
