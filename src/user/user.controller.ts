@@ -31,7 +31,6 @@ export class UserController {
     @Param('empId', ParseIntPipe) empId: number,
     @Req() req: ExtendRequest,
   ) {
-    console.log('Request. ', req.user);
     return await this.userService.getUserEmployee(empId);
   }
 }
