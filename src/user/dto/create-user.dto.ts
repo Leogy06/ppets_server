@@ -1,14 +1,9 @@
 import type { Request } from 'express';
+import { User } from 'src/dto';
 
 // create-user.dto.ts
-export class CreateUserDto {
-  username: string;
+export class CreateUserDto extends User {
   password: string;
-  email: string;
-  role: number;
-  is_active: number;
-  DEPARTMEN_USER: number;
-  emp_id: number;
 }
 
 export class ExtendRequest extends Request {

@@ -21,25 +21,22 @@ export class UserService {
   // * CREATE NEW USER
   async create(createUserDto: CreateUserDto) {
     //check if user is also an employee
-    const isEmployee = await this.prisma.employee.findUnique({
-      where: {
-        ID: createUserDto.emp_id,
-      },
-    });
-
-    if (!isEmployee)
-      throw new BadRequestException('Register user is not employee.');
 
     //check if email already exist
-    const [isEmailExist, isUsernameExist] = await Promise.all([
-      await this.prisma.users.findUnique({
+    const [isEmailExist, isUsernameExist, isEmployee] = await Promise.all([
+      await this.prisma.users.findFirst({
         where: {
           email: createUserDto.email,
         },
       }),
-      await this.prisma.users.findUnique({
+      await this.prisma.users.findFirst({
         where: {
           username: createUserDto.username,
+        },
+      }),
+      await this.prisma.employee.findUnique({
+        where: {
+          ID: createUserDto.emp_id,
         },
       }),
     ]);
@@ -48,6 +45,10 @@ export class UserService {
     if (isUsernameExist)
       throw new BadRequestException('Username already exist.');
 
+    if (!isEmployee)
+      throw new BadRequestException('Register user is not employee.');
+
+    //creating user
     return await this.prisma.users.create({
       data: {
         ...createUserDto,
@@ -94,8 +95,6 @@ export class UserService {
 
   //update user active status
   async updateUserActiveStatus(userId: number, status: number) {
-    //CHECK ROLE
-
     //check if status value is VALID
     if (![0, 1].includes(status))
       throw new BadRequestException('Invalid status value');
@@ -108,5 +107,13 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User not found.');
+  }
+
+  async adminCreateUser(empId: number) {
+    const employee = await this.prisma.employee.findUnique({
+      where: {
+        ID: empId,
+      },
+    });
   }
 }

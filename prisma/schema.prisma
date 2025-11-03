@@ -41,7 +41,7 @@ model users {
   id              Int      @id @default(autoincrement())
   emp_id          Int
   password        String   @db.VarChar(255)
-  email           String   @unique @db.VarChar(255)
+  email           String?   @unique @db.VarChar(255) 
   role            Int
   username        String?  @unique @db.VarChar(45)
   is_active       Int?     @default(1) @db.TinyInt

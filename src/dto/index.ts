@@ -1,9 +1,9 @@
-export interface User {
+export class User {
   username: string | null;
   id: number;
   role: number;
   emp_id: number;
-  email: string;
+  email: string | null;
   DEPARTMENT_USER: number | null;
   is_active: number | null;
 }
