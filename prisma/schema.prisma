@@ -127,6 +127,7 @@ enum Status{
 model Notification {
   id String @id @default(uuid())
   read Read @default(UNREAD)
+  message String @db.VarChar(255)
   empId Int
   employee employee @relation(fields: [empId], references: [ID])
   readAt DateTime?

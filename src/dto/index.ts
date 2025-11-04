@@ -1,3 +1,6 @@
+import { Prisma } from '@prisma/client';
+import { PrismaClient } from 'generated/prisma';
+
 export class User {
   username: string | null;
   id: number;
@@ -22,4 +25,12 @@ export interface Items {
   ACCOUNT_code: number; // account code id FOREIGN KEY
   ADDED_BY: number; // EMPLOYEE ID FOREIGN KEY
   ICS_NO: number;
+}
+
+export class Notification {
+  id: string;
+  message: string;
+  empId: number;
+  readAt: string;
+  createdAt: string;
 }
