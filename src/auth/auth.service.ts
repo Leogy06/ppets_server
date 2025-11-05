@@ -1,15 +1,21 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { User } from 'src/dto';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly prisma: DatabaseService,
   ) {}
 
   async validateUser(username: string, pass: string) {
@@ -19,6 +25,7 @@ export class AuthService {
     if (user && user.is_active === 0)
       throw new UnauthorizedException('This user has been deactivated.');
 
+    //sucess
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;
       return result;
@@ -36,6 +43,20 @@ export class AuthService {
       userId: user.id,
     };
 
+    //find employee
+    const employee = await this.prisma.employee.findUnique({
+      where: {
+        ID: payload.employeeId,
+      },
+      select: {
+        FIRSTNAME: true,
+        LASTNAME: true,
+        MIDDLENAME: true,
+        SUFFIX: true,
+        CURRENT_DPT_ID: true,
+      },
+    });
+
     const token = this.jwtService.sign(payload);
 
     // ✅ Set cookie (works fine with passthrough)
@@ -52,7 +73,7 @@ export class AuthService {
       role: user.role,
     };
 
-    return { message: 'Login successful', user: userDto };
+    return { message: 'Login successful', user: userDto, employee };
   }
   async logout(res: any) {
     res.clearCookie('access_token');

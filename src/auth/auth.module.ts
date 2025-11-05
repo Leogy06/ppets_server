@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
+import { EmployeeModule } from 'src/employee/employee.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { RolesGuard } from './guards/roles.guard';
       signOptions: { expiresIn: '1h' },
     }),
     UserModule, // ? might be use for checking user for authenticating
+    DatabaseModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RolesGuard],
