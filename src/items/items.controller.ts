@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Prisma } from '@prisma/client';
 import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
 import type { Request } from 'express';
+import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('api/items')

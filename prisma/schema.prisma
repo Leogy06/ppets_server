@@ -36,6 +36,7 @@ model employee {
   users          users[]
   transactions Transaction[]
   notifications Notification[]
+  items items[]
 }
 
 model users {
@@ -71,7 +72,8 @@ model items {
   PAR_NO        String?   @db.VarChar(45)
   MR_NO         String?   @db.VarChar(45)
   ACCOUNT_CODE  Int?
-  ADDED_BY      Int?
+  ADDED_BY      Int 
+  employee employee @relation(fields: [ADDED_BY], references: [ID])
   createdAt     DateTime? @default(now()) @db.Timestamp(0)
   updatedAt     DateTime? @default(now()) @db.Timestamp(0)
   condition     Condition @default(EXCELLENT)

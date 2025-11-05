@@ -13,13 +13,24 @@ import { ExtendRequest } from 'src/user/dto/create-user.dto';
 export class TransactionService {
   constructor(private readonly prisma: DatabaseService) {}
 
-  async createTransaction(createTransactionDto: CreateTransactionDto) {
-    const [item, employee] = await Promise.all([
+  async createTransaction(
+    createTransactionDto: CreateTransactionDto,
+    employeeId: number,
+  ) {
+    const [item, employee, empHasPendingTransaction] = await Promise.all([
       await this.prisma.items.findUnique({
         where: { ID: createTransactionDto.itemId },
       }),
       await this.prisma.employee.findUnique({
-        where: { ID: createTransactionDto.employeeId },
+        where: { ID: employeeId },
+      }),
+
+      //check if the requestor has pending transactions
+      await this.prisma.transaction.findFirst({
+        where: {
+          status: 'PENDING',
+          employeeId,
+        },
       }),
     ]);
 
@@ -27,8 +38,13 @@ export class TransactionService {
 
     if (!employee) throw new NotFoundException('Employee not found.');
 
+    if (empHasPendingTransaction)
+      throw new BadRequestException(
+        'You have a previous transaction. Please settle first.',
+      );
+
     const newTransaction = await this.prisma.transaction.create({
-      data: createTransactionDto,
+      data: { ...createTransactionDto, employeeId },
     });
 
     return newTransaction;

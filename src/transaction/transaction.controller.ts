@@ -22,16 +22,21 @@ export class TransactionController {
 
   //create transaction
   @Post()
-  async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
+  async createTransaction(
+    @Body() createTransactionDto: CreateTransactionDto,
+    @Req() req: ExtendRequest,
+  ) {
+    const { employeeId } = req.user;
     return await this.transactionService.createTransaction(
       createTransactionDto,
+      employeeId,
     );
   }
 
   @Get(':pageSize/:pageIndex')
   async getTransaction(
-    @Param('pageSize', ParseIntPipe) pageSize,
-    @Param('pageIndex', ParseIntPipe) pageIndex,
+    @Param('pageSize', ParseIntPipe) pageSize: number,
+    @Param('pageIndex', ParseIntPipe) pageIndex: number,
     @Req() req: ExtendRequest,
   ) {
     const employeeId = req.user.employeeId;

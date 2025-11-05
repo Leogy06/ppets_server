@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export const createTransactionSchema = z.object({
   id: z.string().optional(),
-  employeeId: z.number().min(1, 'Employee ID is required.'),
+  // employeeId: z.number().min(1, 'Employee ID is required.'), this can now get in the req object
   itemId: z.number().min(1, 'Item ID is required.'),
   quantity: z
     .number()
