@@ -164,15 +164,35 @@ export class ItemsService {
     //find employee first if exist
     const employee = await this.employeeService.findOne(employeeId);
 
-    return await this.prisma.items.findMany({
-      where: {
-        QUANTITY: {
-          gt: 0,
+    const [availableItems, itemCount] = await Promise.all([
+      await this.prisma.items.findMany({
+        where: {
+          QUANTITY: {
+            gt: 0,
+          },
+          employee: {
+            CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+          },
         },
-        employee: {
-          CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+        select: {
+          ID: true,
+          ITEM_NAME: true,
+          QUANTITY: true,
+          originalQuantity: true,
         },
-      },
-    });
+      }),
+      await this.prisma.items.count({
+        where: {
+          QUANTITY: {
+            gt: 0,
+          },
+          employee: {
+            CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+          },
+        },
+      }),
+    ]);
+
+    return { availableItems, itemCount };
   }
 }
