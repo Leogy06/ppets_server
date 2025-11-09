@@ -7,12 +7,16 @@ import { Prisma } from '@prisma/client';
 import { Request } from 'express';
 import { NotFoundError } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
 import { checkDuplicateField } from 'src/utils/duplicate-checker.util';
 
 @Injectable()
 export class ItemsService {
-  constructor(private readonly prisma: DatabaseService) {}
+  constructor(
+    private readonly prisma: DatabaseService,
+    private readonly employeeService: EmployeeService,
+  ) {}
 
   async findAll(page: number = 1, pageSize: number = 10, itemName?: string) {
     const skip = (page - 1) * pageSize;
@@ -154,5 +158,21 @@ export class ItemsService {
     });
 
     return updatedItem;
+  }
+
+  async getAvailableItems(employeeId: number) {
+    //find employee first if exist
+    const employee = await this.employeeService.findOne(employeeId);
+
+    return await this.prisma.items.findMany({
+      where: {
+        QUANTITY: {
+          gt: 0,
+        },
+        employee: {
+          CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+        },
+      },
+    });
   }
 }

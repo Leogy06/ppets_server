@@ -50,4 +50,11 @@ export class ItemsController {
 
     return updatedItem;
   }
+
+  @Get('available-items')
+  async getAvailableItems(@Req() req: ExtendRequest) {
+    const { employeeId } = req.user;
+
+    return await this.itemServices.getAvailableItems(employeeId);
+  }
 }

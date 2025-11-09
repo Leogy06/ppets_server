@@ -161,6 +161,14 @@ export class EmployeeService {
       where: {
         ID: id,
       },
+      select: {
+        ID: true,
+        FIRSTNAME: true,
+        LASTNAME: true,
+        MIDDLENAME: true,
+        SUFFIX: true,
+        CURRENT_DPT_ID: true,
+      },
     });
 
     if (!employee) throw new NotFoundException('Employee not found.');
