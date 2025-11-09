@@ -32,8 +32,13 @@ export class ItemsController {
   }
 
   @Post()
-  async create(@Body() createItemDto: CreateItemDto, @Req() req: Request) {
-    return await this.itemServices.create(createItemDto, req);
+  async create(
+    @Body() createItemDto: CreateItemDto,
+    @Req() req: ExtendRequest,
+  ) {
+    const employeeId = req.user.employeeId;
+
+    return await this.itemServices.create(createItemDto, employeeId);
   }
 
   @Put(':itemId')

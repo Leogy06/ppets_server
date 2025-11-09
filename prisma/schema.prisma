@@ -61,6 +61,7 @@ model items {
   DESCRIPTION   String    @db.Text
   UNIT_VALUE    Decimal   @db.Decimal(10, 2)
   QUANTITY      Int
+  originalQuantity Int
   RECEIVED_AT   DateTime  @db.DateTime(0)
   PIS_NO        String?   @db.VarChar(45)
   PROP_NO       String?   @db.VarChar(45)

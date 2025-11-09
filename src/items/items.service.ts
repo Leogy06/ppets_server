@@ -37,7 +37,7 @@ export class ItemsService {
     return { items, count };
   }
 
-  async create(createItemDto: CreateItemDto, req: Request) {
+  async create(createItemDto: CreateItemDto, employeeId: number) {
     // 👇 run duplicate checks concurrently
     const [pisDup, propDup, mrDup, parDup] = await Promise.all([
       checkDuplicateField(this.prisma, 'items', 'PIS_NO', createItemDto.PIS_NO),
@@ -67,7 +67,7 @@ export class ItemsService {
 
     const findEmployee = await this.prisma.employee.findFirst({
       where: {
-        ID: (req as any)?.user?.employeeId,
+        ID: employeeId,
       },
     });
 
@@ -78,6 +78,7 @@ export class ItemsService {
         ...createItemDto,
         DEPARTMENT_ID: findEmployee.DEPARTMENT_ID,
         ADDED_BY: findEmployee.ID,
+        originalQuantity: createItemDto.QUANTITY,
       },
     });
 
