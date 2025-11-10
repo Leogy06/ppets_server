@@ -14,8 +14,10 @@ import { TransactionService } from './transaction.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
 import { Status } from '@prisma/client';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('api/transaction')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
@@ -34,6 +36,7 @@ export class TransactionController {
   }
 
   @Get(':pageSize/:pageIndex')
+  @Roles(1)
   async getTransaction(
     @Param('pageSize', ParseIntPipe) pageSize: number,
     @Param('pageIndex', ParseIntPipe) pageIndex: number,
@@ -57,6 +60,16 @@ export class TransactionController {
       status,
       transactionId,
       req,
+    );
+  }
+
+  @Roles(2)
+  @Get('approved-employee')
+  async getEmployeeApprovedTransaction(@Req() req: ExtendRequest) {
+    const { employeeId } = req.user;
+
+    return await this.transactionService.getEmployeeApprovedTransaction(
+      employeeId,
     );
   }
 }

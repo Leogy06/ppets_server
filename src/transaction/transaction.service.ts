@@ -49,6 +49,8 @@ export class TransactionService {
 
     return newTransaction;
   }
+
+  //use by admin to get transactions
   async getTransaction(
     employeeId: number,
     pageSize: number,
@@ -82,6 +84,8 @@ export class TransactionService {
         item: {
           select: {
             ITEM_NAME: true,
+            DESCRIPTION: true,
+            UNIT_VALUE: true,
           },
         },
         employee: {
@@ -101,6 +105,7 @@ export class TransactionService {
 
     return { transactions, count };
   }
+
   async updateStatus(
     status: Status,
     transactionId: string,
@@ -124,6 +129,22 @@ export class TransactionService {
         status,
         updatedAt: new Date(),
         updatedBy: req.user.userId,
+      },
+    });
+  }
+
+  //get transaction of an employee
+  async getEmployeeApprovedTransaction(employeeId: number) {
+    return await this.prisma.transaction.findMany({
+      where: {
+        employeeId,
+        status: 'APPROVED',
+      },
+      select: {
+        id: true,
+        item: true,
+        itemId: true,
+        quantity: true,
       },
     });
   }
