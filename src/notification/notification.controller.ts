@@ -27,11 +27,6 @@ export class NotificationController {
     return this.notificationService.getNotification(req.user.employeeId, take);
   }
 
-  @Post()
-  async createNotification(@Body() dto: CreateNotificationDto) {
-    return this.notificationService.createNotification(dto);
-  }
-
   @Put('read')
   async updateNotification(@Body('ids') ids: string[]) {
     return await this.notificationService.readNotifications(ids);

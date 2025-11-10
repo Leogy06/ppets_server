@@ -22,9 +22,9 @@ model department_table {
 model employee {
   ID             Int       @id @default(autoincrement())
   ID_NUMBER      Int
-  FIRSTNAME      String?   @db.VarChar(255)
+  FIRSTNAME      String   @db.VarChar(255)
   MIDDLENAME     String?   @db.VarChar(255)
-  LASTNAME       String?   @db.VarChar(255)
+  LASTNAME       String   @db.VarChar(255)
   SUFFIX         String?   @db.VarChar(255)
   DEPARTMENT_ID  Int?
   CURRENT_DPT_ID Int?

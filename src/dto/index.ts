@@ -1,6 +1,3 @@
-import { Prisma } from '@prisma/client';
-import { PrismaClient } from 'generated/prisma';
-
 export class User {
   username: string | null;
   id: number;
@@ -9,6 +6,13 @@ export class User {
   email: string | null;
   DEPARTMENT_USER: number | null;
   is_active: number | null;
+}
+
+export class Employee {
+  FIRSTNAME: string;
+  LASTNAME: string;
+  MIDDLNAME?: string | null;
+  SUFFIX?: string | null;
 }
 
 export interface Items {
@@ -29,8 +33,9 @@ export interface Items {
 
 export class Notification {
   id: string;
+  read: 'UNREAD' | 'READ';
   message: string;
   empId: number;
-  readAt: string;
-  createdAt: string;
+  readAt: Date | null;
+  createdAt?: Date;
 }

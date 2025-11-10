@@ -2,17 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { NotificationGateway } from './notification.gateway';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateNotificationDto } from './dto/notification.dto';
+import { ConnectedSocket, SubscribeMessage } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
+import { Notification } from 'src/dto';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    private readonly gateway: NotificationGateway,
     private readonly prisma: DatabaseService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
-
-  async notifyAdmin(message: string) {
-    this.gateway.sendNotification({ message });
-  }
 
   async getNotification(empId: number, take = 5) {
     if (!empId) throw new BadRequestException('Employee ID is required.');
@@ -44,10 +43,19 @@ export class NotificationService {
     return all;
   }
 
-  async createNotification(dto: CreateNotificationDto) {
-    return this.prisma.notification.create({
-      data: dto,
+  async notifyAdmin(message: string, adminId: number) {
+    //create notification
+    const createdNotification = await this.prisma.notification.create({
+      data: {
+        message,
+        empId: adminId,
+      },
     });
+
+    this.notificationGateway.sendAdminNotification(
+      createdNotification,
+      adminId,
+    );
   }
 
   //unread multiple notification

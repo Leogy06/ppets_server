@@ -12,6 +12,8 @@ import { DatabaseService } from 'src/database/database.service';
 import * as jwt from 'jsonwebtoken'; // for decoding token
 import { convertDepartmentId } from 'src/utils/department-utils';
 import { roleIdConvert } from 'src/utils/role-utils';
+import { Notification } from 'src/dto';
+import { BadRequestException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -40,6 +42,8 @@ export class NotificationGateway
       }
 
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+
+      if (!decoded) throw new BadRequestException('Token is invalid');
 
       const { employeeId, role } = decoded;
 
@@ -72,16 +76,11 @@ export class NotificationGateway
     console.log(`❌ Client disconnected: ${client.id}`);
   }
 
-  sendNotification(payload: { message: string }) {
-    this.server.emit('notification', payload);
-  }
-
-  @SubscribeMessage('send_admin_notif')
-  handleSendAdminNotif(
-    @MessageBody() data: { notification: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log(`Received from client ${client.id}: `, data);
-    this.server.to(`role:1`).to('department:1').emit('admin_notif', data);
+  //employee sends admin a notif about the transaction
+  sendAdminNotification(notification: Notification, department: number) {
+    this.server
+      .to('role:1')
+      .to(`department:${department}`)
+      .emit('sendAdminNotification', notification);
   }
 }

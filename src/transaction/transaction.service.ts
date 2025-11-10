@@ -6,16 +6,21 @@ import {
 import { Status } from '@prisma/client';
 import e from 'express';
 import { DatabaseService } from 'src/database/database.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { CreateTransactionDto } from 'src/schemas/transaction.schema';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
+import { employeeName } from 'src/utils/employee-utils';
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly prisma: DatabaseService) {}
+  constructor(
+    private readonly prisma: DatabaseService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async createTransaction(
     createTransactionDto: CreateTransactionDto,
-    employeeId: number,
+    employeeId: number, //creator of the transaction
   ) {
     const [item, employee, empHasPendingTransaction] = await Promise.all([
       await this.prisma.items.findUnique({
@@ -38,6 +43,18 @@ export class TransactionService {
 
     if (!employee) throw new NotFoundException('Employee not found.');
 
+    const empAdmin = await this.prisma.users.findFirst({
+      where: {
+        role: 1,
+        employee: {
+          CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+        },
+      },
+    });
+
+    if (!empAdmin) throw new NotFoundException('Admin not found.');
+
+    //check if employee still has pending transaction
     if (empHasPendingTransaction)
       throw new BadRequestException(
         'You have a previous transaction. Please settle first.',
@@ -46,6 +63,12 @@ export class TransactionService {
     const newTransaction = await this.prisma.transaction.create({
       data: { ...createTransactionDto, employeeId },
     });
+
+    // create anotification about the created transaction
+    this.notificationService.notifyAdmin(
+      `${employeeName(employee)} has requested ${item.ITEM_NAME}`, // the message
+      empAdmin.emp_id,
+    );
 
     return newTransaction;
   }
