@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -31,7 +32,7 @@ export class AuthService {
       return result;
     }
 
-    throw new UnauthorizedException('Invalid Credentials');
+    throw new BadRequestException('Invalid Credentials');
   }
 
   async loginWithCredentials(user: User, res: Response) {
