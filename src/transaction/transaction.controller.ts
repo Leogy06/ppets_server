@@ -35,6 +35,7 @@ export class TransactionController {
     );
   }
 
+  //for admin to approve | reject transactions
   @Get(':pageSize/:pageIndex')
   @Roles(1)
   async getTransaction(
@@ -71,5 +72,12 @@ export class TransactionController {
     return await this.transactionService.getEmployeeApprovedTransaction(
       employeeId,
     );
+  }
+
+  @Get('employee-transactions')
+  async getEmployeeTransactions(@Req() req: ExtendRequest) {
+    const { employeeId } = req.user;
+
+    return await this.transactionService.getEmployeeTransactions(employeeId);
   }
 }

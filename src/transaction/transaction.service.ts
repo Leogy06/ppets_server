@@ -156,7 +156,7 @@ export class TransactionService {
     });
   }
 
-  //get transaction of an employee
+  //get approved transaction of an employee
   async getEmployeeApprovedTransaction(employeeId: number) {
     return await this.prisma.transaction.findMany({
       where: {
@@ -169,6 +169,41 @@ export class TransactionService {
         itemId: true,
         quantity: true,
       },
+      orderBy: {
+        item: {
+          ITEM_NAME: 'asc',
+        },
+      },
     });
+  }
+
+  //get all transaction of an employee
+  async getEmployeeTransactions(employeeId: number) {
+    const count = await this.prisma.transaction.count({
+      where: {
+        employeeId,
+      },
+    });
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        employeeId,
+      },
+      select: {
+        id: true,
+        item: true,
+        itemId: true,
+        quantity: true,
+      },
+      orderBy: {
+        item: {
+          createdAt: 'desc',
+        },
+      },
+    });
+
+    return {
+      transactions,
+      count,
+    };
   }
 }
