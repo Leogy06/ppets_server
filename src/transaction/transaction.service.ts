@@ -193,6 +193,7 @@ export class TransactionService {
         item: true,
         itemId: true,
         quantity: true,
+        status: true,
       },
       orderBy: {
         item: {
