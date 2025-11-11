@@ -40,8 +40,11 @@ export class TransactionService {
     ]);
 
     if (!item) throw new NotFoundException('Item not found.');
-
     if (!employee) throw new NotFoundException('Employee not found.');
+
+    //check if item requested quantity exceeds
+    if (createTransactionDto.quantity > item.QUANTITY)
+      throw new BadRequestException('Requested item quantity exceeds.');
 
     const empAdmin = await this.prisma.users.findFirst({
       where: {

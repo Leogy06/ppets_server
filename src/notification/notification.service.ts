@@ -1,10 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { NotificationGateway } from './notification.gateway';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateNotificationDto } from './dto/notification.dto';
-import { ConnectedSocket, SubscribeMessage } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
-import { Notification } from 'src/dto';
 
 @Injectable()
 export class NotificationService {
@@ -34,6 +30,8 @@ export class NotificationService {
 
     const set = new Set();
 
+    //unread should be on top
+    //while read is below if in the page size(take)
     const all = [...unread, ...recent].filter((n) => {
       if (set.has(n.id)) return false;
       set.add(n.id);
