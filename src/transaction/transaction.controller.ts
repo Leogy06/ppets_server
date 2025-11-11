@@ -51,16 +51,16 @@ export class TransactionController {
     );
   }
 
-  @Put('update-status/:transactionId')
-  async updateTransactionStatus(
+  @Put('approve-transaction/:transactionId')
+  async approveTransaction(
     @Param('transactionId') transactionId: string,
     @Req() req: ExtendRequest,
-    @Body('status') status: Status,
   ) {
-    return await this.transactionService.updateStatus(
-      status,
+    const { userId } = req.user;
+
+    return await this.transactionService.approveTransaction(
       transactionId,
-      req,
+      userId,
     );
   }
 

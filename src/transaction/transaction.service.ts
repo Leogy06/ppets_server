@@ -100,7 +100,7 @@ export class TransactionService {
     const transactions = await this.prisma.transaction.findMany({
       where: {
         employee: {
-          DEPARTMENT_ID: employee.DEPARTMENT_ID,
+          CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
         },
       },
       include: {
@@ -129,30 +129,47 @@ export class TransactionService {
     return { transactions, count };
   }
 
-  async updateStatus(
-    status: Status,
-    transactionId: string,
-    req: ExtendRequest,
-  ) {
-    const transaction = await this.prisma.transaction.findUnique({
-      where: {
-        id: transactionId,
-      },
-    });
+  async approveTransaction(transactionId: string, userId: number) {
+    return await this.prisma.$transaction(async (tx) => {
+      const transaction = await tx.transaction.findUnique({
+        where: { id: transactionId },
+        select: { id: true, itemId: true, status: true, quantity: true },
+      });
 
-    if (!transaction) throw new NotFoundException('Transaction not found.');
-    if (transaction.status !== Status.PENDING)
-      throw new BadRequestException('Status is not pending anymore.');
+      if (!transaction) throw new NotFoundException('Transaction not found.');
+      if (transaction.status !== Status.PENDING)
+        throw new BadRequestException('Status is not pending anymore.');
 
-    return await this.prisma.transaction.update({
-      where: {
-        id: transactionId,
-      },
-      data: {
-        status,
-        updatedAt: new Date(),
-        updatedBy: req.user.userId,
-      },
+      const item = await tx.items.findUnique({
+        where: { ID: transaction.itemId },
+        select: { ID: true, QUANTITY: true },
+      });
+
+      if (!item) throw new NotFoundException('Item not found.');
+      if (transaction.quantity > item.QUANTITY)
+        throw new BadRequestException('Quantity is not enough.');
+
+      const itemQuantity = await tx.items.update({
+        where: { ID: item.ID },
+        data: { QUANTITY: item.QUANTITY - transaction.quantity },
+        select: { ID: true, ITEM_NAME: true, QUANTITY: true },
+      });
+
+      const approvedTransaction = await tx.transaction.update({
+        where: { id: transactionId },
+        data: {
+          status: 'APPROVED',
+          updatedAt: new Date(),
+          updatedBy: userId,
+        },
+        select: {
+          id: true,
+          item: { select: { ITEM_NAME: true } },
+          status: true,
+        },
+      });
+
+      return { itemQuantity, approvedTransaction };
     });
   }
 
