@@ -210,7 +210,14 @@ export class TransactionService {
       },
       select: {
         id: true,
-        item: true,
+        item: {
+          select: {
+            ID: true,
+            ITEM_NAME: true,
+            condition: true,
+            DESCRIPTION: true,
+          },
+        },
         itemId: true,
         quantity: true,
         status: true,
