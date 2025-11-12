@@ -187,6 +187,35 @@ export class TransactionService {
     });
   }
 
+  async rejectTransaction(transactionId: string, userId: number) {
+    return await this.prisma.$transaction(async (tx) => {
+      const transaction = await tx.transaction.findUnique({
+        where: { id: transactionId },
+        select: { id: true, itemId: true, status: true },
+      });
+
+      if (!transaction) throw new NotFoundException('Transaction not found.');
+      if (transaction.status !== Status.PENDING)
+        throw new BadRequestException('Status is not pending anymore.');
+
+      const rejectedTransaction = await tx.transaction.update({
+        where: { id: transactionId },
+        data: {
+          status: 'REJECTED',
+          updatedAt: new Date(),
+          updatedBy: userId,
+        },
+        select: {
+          id: true,
+          item: { select: { ITEM_NAME: true } },
+          status: true,
+        },
+      });
+
+      return { rejectedTransaction };
+    });
+  }
+
   //get approved transaction of an employee
   async getEmployeeApprovedTransaction(employeeId: number) {
     return await this.prisma.transaction.findMany({

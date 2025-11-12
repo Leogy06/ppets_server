@@ -52,6 +52,7 @@ export class TransactionController {
   }
 
   @Put('approve-transaction/:transactionId')
+  @Roles(1)
   async approveTransaction(
     @Param('transactionId') transactionId: string,
     @Req() req: ExtendRequest,
@@ -59,6 +60,20 @@ export class TransactionController {
     const { userId } = req.user;
 
     return await this.transactionService.approveTransaction(
+      transactionId,
+      userId,
+    );
+  }
+
+  @Put('reject-transaction/:transactionId')
+  @Roles(1)
+  async rejectTransaction(
+    @Param('transactionId') transactionId: string,
+    @Req() req: ExtendRequest,
+  ) {
+    const { userId } = req.user;
+
+    return await this.transactionService.rejectTransaction(
       transactionId,
       userId,
     );
