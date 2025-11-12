@@ -67,6 +67,6 @@ export class NotificationGateway
   sendNotification(notification: Notification, employeeId: number) {
     this.server
       .to(`employeeId:${employeeId}`)
-      .emit('sendNotification', notification);
+      .emit('receiveNotification', notification);
   }
 }
