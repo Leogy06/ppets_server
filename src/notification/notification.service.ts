@@ -1,6 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { NotificationGateway } from './notification.gateway';
 import { DatabaseService } from 'src/database/database.service';
+import { Employee, Items, User } from 'src/dto';
+import { employeeName } from 'src/utils/employee-utils';
 
 @Injectable()
 export class NotificationService {
@@ -41,19 +47,30 @@ export class NotificationService {
     return all;
   }
 
-  async notifyAdmin(message: string, adminId: number) {
+  async notifyAdmin(employee: Employee, admin: User, itemName: string) {
     //create notification
-    const createdNotification = await this.prisma.notification.create({
+    const employeeNotif = await this.prisma.notification.create({
       data: {
-        message,
-        empId: adminId,
+        message: `You have requested ${itemName}`,
+        empId: employee.ID,
       },
     });
 
-    this.notificationGateway.sendAdminNotification(
-      createdNotification,
-      adminId,
-    );
+    //create notification for the admin
+    const adminNotif = await this.prisma.notification.create({
+      data: {
+        message: `${employeeName(employee)} requested ${itemName}`,
+        empId: admin.emp_id,
+      },
+    });
+
+    //for the admin notif
+    employee.CURRENT_DPT_ID &&
+      this.notificationGateway.sendNotification(adminNotif, admin.emp_id);
+
+    //for the employee notif
+    employee.CURRENT_DPT_ID &&
+      this.notificationGateway.sendNotification(employeeNotif, employee.ID);
   }
 
   //unread multiple notification

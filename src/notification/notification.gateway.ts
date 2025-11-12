@@ -45,26 +45,13 @@ export class NotificationGateway
 
       if (!decoded) throw new BadRequestException('Token is invalid');
 
-      const { employeeId, role } = decoded;
+      const { employeeId } = decoded;
 
-      let department: number | null = null;
-
-      if (employeeId) {
-        const employee = await this.prisma.employee.findUnique({
-          where: {
-            ID: employeeId,
-          },
-        });
-
-        department = employee?.CURRENT_DPT_ID || null;
-      }
-
-      //join role & department rooms
-      if (role) client.join(`role:${role}`);
-      if (department) client.join(`Department:${department}`);
+      //register to employeeId
+      if (employeeId) client.join(`employeeId:${employeeId}`);
 
       console.log(
-        `⚡ Client ${client.id} joined role: ${roleIdConvert(role)} Department: ${convertDepartmentId(department)}`,
+        `⚡ Client ${client.id}  joined with employee ID: ${employeeId}`,
       );
     } catch (error) {
       console.error('❌ Connection error:', error.message);
@@ -77,10 +64,9 @@ export class NotificationGateway
   }
 
   //employee sends admin a notif about the transaction
-  sendAdminNotification(notification: Notification, department: number) {
+  sendNotification(notification: Notification, employeeId: number) {
     this.server
-      .to('role:1')
-      .to(`department:${department}`)
-      .emit('sendAdminNotification', notification);
+      .to(`employeeId:${employeeId}`)
+      .emit('sendNotification', notification);
   }
 }

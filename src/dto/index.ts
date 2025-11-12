@@ -9,17 +9,19 @@ export class User {
 }
 
 export class Employee {
+  ID: number;
   FIRSTNAME: string;
   LASTNAME: string;
   MIDDLNAME?: string | null;
   SUFFIX?: string | null;
+  CURRENT_DPT_ID: number | null;
 }
 
 export interface Items {
   ID: number;
   ITEM_NAME: string;
   DESCRIPTION: string;
-  UNIT_VALUE: string;
+  UNIT_VALUE: number;
   STOCK_QUANTITY: number;
   ORIGINAL_QUANTITY: number;
   RECEIVED_AT: string;

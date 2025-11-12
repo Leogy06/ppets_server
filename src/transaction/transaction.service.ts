@@ -42,10 +42,23 @@ export class TransactionService {
     if (!item) throw new NotFoundException('Item not found.');
     if (!employee) throw new NotFoundException('Employee not found.');
 
+    //find department admin
+    const admin = await this.prisma.users.findFirst({
+      where: {
+        role: 1,
+        employee: {
+          CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
+        },
+      },
+    });
+
+    if (!admin) throw new NotFoundException('Admin not found.');
+
     //check if item requested quantity exceeds
     if (createTransactionDto.quantity > item.QUANTITY)
       throw new BadRequestException('Requested item quantity exceeds.');
 
+    //find user's admin
     const empAdmin = await this.prisma.users.findFirst({
       where: {
         role: 1,
@@ -68,10 +81,8 @@ export class TransactionService {
     });
 
     // create anotification about the created transaction
-    this.notificationService.notifyAdmin(
-      `${employeeName(employee)} has requested ${item.ITEM_NAME}`, // the message
-      empAdmin.emp_id,
-    );
+    employee &&
+      this.notificationService.notifyAdmin(employee, admin, item.ITEM_NAME);
 
     return newTransaction;
   }
