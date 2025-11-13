@@ -15,6 +15,8 @@ import { AccountRequestsModule } from './account_requests/account_requests.modul
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { DashboardController } from './dashboard/dashboard.controller';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     TransactionModule,
     NotificationModule,
     AccountRequestsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
