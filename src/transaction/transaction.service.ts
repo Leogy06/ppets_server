@@ -218,6 +218,8 @@ export class TransactionService {
 
   //get approved transaction of an employee
   async getEmployeeApprovedTransaction(employeeId: number) {
+    //we will also getting the returning items
+
     return await this.prisma.transaction.findMany({
       where: {
         employeeId,

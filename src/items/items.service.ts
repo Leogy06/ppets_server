@@ -77,6 +77,13 @@ export class ItemsService {
 
     if (!findEmployee) throw new BadRequestException('Employee not found.');
 
+    //received data should be in past dates
+    const today = new Date();
+    const receivedDate = new Date(createItemDto.RECEIVED_AT);
+
+    if (receivedDate > today)
+      throw new BadRequestException('Receive date item is an upcoming date.');
+
     const newItem = await this.prisma.items.create({
       data: {
         ...createItemDto,

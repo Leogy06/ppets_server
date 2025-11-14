@@ -118,6 +118,14 @@ model Transaction {
   updatedAt DateTime @default(now())
   updatedBy Int?
   updater users? @relation(fields: [updatedBy], references: [id])
+  transactionConcerns TransactionConcerns[]
+}
+model TransactionConcerns{
+  id String @id @default(uuid())
+  transactionId String
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  message String
+  intentStatus Status
 }
 
 enum Status{
