@@ -132,7 +132,7 @@ export class UserService {
     const isEmployeeUser = await this.prisma.users.findFirst({
       where: {
         emp_id: empId,
-        role,
+        // role, remove role, every employee should only have one account
       },
     });
 
