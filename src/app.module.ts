@@ -17,6 +17,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DummyModule } from './dummy/dummy.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     NotificationModule,
     AccountRequestsModule,
     DashboardModule,
+    DummyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
