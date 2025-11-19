@@ -13,7 +13,6 @@ import { CreateTransactionDto } from 'src/schemas/transaction.schema';
 import { TransactionService } from './transaction.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
-import { Status } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
@@ -57,7 +56,7 @@ export class TransactionController {
     @Param('transactionId') transactionId: string,
     @Req() req: ExtendRequest,
   ) {
-    const { userId } = req.user;
+    const { userId, employeeId } = req.user;
 
     return await this.transactionService.approveTransaction(
       transactionId,

@@ -147,7 +147,13 @@ export class TransactionService {
     return await this.prisma.$transaction(async (tx) => {
       const transaction = await tx.transaction.findUnique({
         where: { id: transactionId },
-        select: { id: true, itemId: true, status: true, quantity: true },
+        select: {
+          id: true,
+          itemId: true,
+          status: true,
+          quantity: true,
+          employee: true,
+        },
       });
 
       if (!transaction) throw new NotFoundException('Transaction not found.');
@@ -182,6 +188,25 @@ export class TransactionService {
           status: true,
         },
       });
+
+      const admin = await this.prisma.users.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          emp_id: true,
+        },
+      });
+
+      if (!admin) throw new NotFoundException('Admin not found');
+
+      //create notification about he approved
+      this.notificationService.approveRequestNotification(
+        transaction.employee,
+        admin,
+        itemQuantity.ITEM_NAME,
+      );
 
       return { itemQuantity, approvedTransaction };
     });

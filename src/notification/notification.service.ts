@@ -47,7 +47,11 @@ export class NotificationService {
     return all;
   }
 
-  async notifyAdmin(employee: Employee, admin: User, itemName: string) {
+  async notifyAdmin(
+    employee: Employee,
+    admin: Pick<User, 'emp_id' | 'id'>,
+    itemName: string,
+  ) {
     //create notification
     const employeeNotif = await this.prisma.notification.create({
       data: {
@@ -71,6 +75,33 @@ export class NotificationService {
     //for the employee notif
     employee.CURRENT_DPT_ID &&
       this.notificationGateway.sendNotification(employeeNotif, employee.ID);
+  }
+
+  async approveRequestNotification(
+    employee: Employee,
+    admin: Pick<User, 'emp_id' | 'id'>,
+    itemName: string,
+  ) {
+    if (!employee || !admin || !itemName)
+      throw new BadRequestException('Required fieds are empty.');
+
+    const empNotif = await this.prisma.notification.create({
+      data: {
+        message: `You're request for the item ${itemName} has been approved.`,
+        empId: employee.ID,
+      },
+    });
+
+    const adminNotif = await this.prisma.notification.create({
+      data: {
+        message: `The requested item ${itemName} by ${employeeName(employee)} has been approved.`,
+        empId: admin.emp_id,
+      },
+    });
+
+    this.notificationGateway.sendNotification(adminNotif, admin.emp_id);
+
+    this.notificationGateway.sendNotification(empNotif, employee.ID);
   }
 
   //unread multiple notification
