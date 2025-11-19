@@ -19,6 +19,7 @@ export class EmployeeService {
     pageIndex: number = 1,
     pageSize: number = 5,
     req: ExtendRequest,
+    employeeId: number,
     employeeName?: string,
   ) {
     const skip = (pageIndex - 1) * pageSize;
@@ -35,6 +36,9 @@ export class EmployeeService {
       where: {
         DELETED: 0,
         CURRENT_DPT_ID: loggedInEmployee?.CURRENT_DPT_ID,
+        NOT: {
+          ID: employeeId,
+        },
       },
     });
 

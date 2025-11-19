@@ -31,10 +31,13 @@ export class EmployeeController {
     @Query('employeeName') employeeName: string,
     @Req() req: ExtendRequest,
   ) {
+    const { employeeId } = req.user;
+
     return await this.employeeService.findAll(
       pageIndex,
       pageSize,
       req,
+      employeeId,
       employeeName,
     );
   }
