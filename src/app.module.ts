@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DummyModule } from './dummy/dummy.module';
+import { TransactionConcernModule } from './transaction_concern/transaction_concern.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { DummyModule } from './dummy/dummy.module';
     AccountRequestsModule,
     DashboardModule,
     DummyModule,
+    TransactionConcernModule,
   ],
   controllers: [AppController],
   providers: [AppService],
