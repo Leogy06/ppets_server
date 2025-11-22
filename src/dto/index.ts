@@ -41,3 +41,17 @@ export class Notification {
   readAt: Date | null;
   createdAt?: Date;
 }
+
+export enum Status {
+  APPROVED = 'APPROVED',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED',
+  CANCEL = 'CANCEL',
+}
+
+export class TransactionConcern {
+  id: string;
+  transactionId: string;
+  message: string;
+  intenStatus: Status;
+}
