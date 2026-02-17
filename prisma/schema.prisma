@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model department_table {
@@ -19,30 +20,30 @@ model department_table {
 }
 
 model employee {
-  ID             Int       @id @default(autoincrement())
+  ID             Int            @id @default(autoincrement())
   ID_NUMBER      Int
-  FIRSTNAME      String   @db.VarChar(255)
-  MIDDLENAME     String?   @db.VarChar(255)
-  LASTNAME       String   @db.VarChar(255)
-  SUFFIX         String?   @db.VarChar(255)
+  FIRSTNAME      String         @db.VarChar(255)
+  MIDDLENAME     String?        @db.VarChar(255)
+  LASTNAME       String         @db.VarChar(255)
+  SUFFIX         String?        @db.VarChar(255)
   DEPARTMENT_ID  Int?
   CURRENT_DPT_ID Int?
   CREATED_BY     Int?
-  CREATED_WHEN   DateTime? @db.DateTime(0)
+  CREATED_WHEN   DateTime?      @db.DateTime(0)
   UPDATED_BY     Int?
-  UPDATED_WHEN   DateTime? @db.DateTime(0)
-  DELETED        Int?      @db.TinyInt
+  UPDATED_WHEN   DateTime?      @db.DateTime(0)
+  DELETED        Int?           @db.TinyInt
   users          users[]
-  transactions Transaction[]
-  notifications Notification[]
-  items items[]
+  transactions   Transaction[]
+  notifications  Notification[]
+  items          items[]
 }
 
 model users {
   id              Int      @id @default(autoincrement())
   emp_id          Int
   password        String   @db.VarChar(255)
-  email           String?   @unique @db.VarChar(255) 
+  email           String?  @unique @db.VarChar(255)
   role            Int
   username        String?  @unique @db.VarChar(45)
   is_active       Int?     @default(1) @db.TinyInt
@@ -50,34 +51,35 @@ model users {
   employee        employee @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
   transactions Transaction[]
+
   @@index([emp_id], map: "emp_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model items {
-  ID            Int       @id @unique(map: "ID") @default(autoincrement())
-  ITEM_NAME     String    @db.VarChar(45)
-  DESCRIPTION   String    @db.Text
-  UNIT_VALUE    Decimal   @db.Decimal(10, 2)
-  QUANTITY      Int
+  ID               Int           @id @unique(map: "ID") @default(autoincrement())
+  ITEM_NAME        String        @db.VarChar(45)
+  DESCRIPTION      String        @db.Text
+  UNIT_VALUE       Decimal       @db.Decimal(10, 2)
+  QUANTITY         Int
   originalQuantity Int
-  RECEIVED_AT   DateTime  @db.DateTime(0)
-  PIS_NO        String?   @db.VarChar(45)
-  PROP_NO       String?   @db.VarChar(45)
-  SERIAL_NO     String?   @db.VarChar(45)
-  ICS_NO        String?   @db.VarChar(45)
-  DEPARTMENT_ID Int?
-  REMARKS       String?   @db.Text
-  DELETE        Int       @default(0) @db.TinyInt
-  PAR_NO        String?   @db.VarChar(45)
-  MR_NO         String?   @db.VarChar(45)
-  ACCOUNT_CODE  Int?
-  ADDED_BY      Int 
-  employee employee @relation(fields: [ADDED_BY], references: [ID])
-  createdAt     DateTime? @default(now()) @db.Timestamp(0)
-  updatedAt     DateTime? @default(now()) @db.Timestamp(0)
-  condition     Condition @default(EXCELLENT)
-  transactions Transaction[]
+  RECEIVED_AT      DateTime      @db.DateTime(0)
+  PIS_NO           String?       @db.VarChar(45)
+  PROP_NO          String?       @db.VarChar(45)
+  SERIAL_NO        String?       @db.VarChar(45)
+  ICS_NO           String?       @db.VarChar(45)
+  DEPARTMENT_ID    Int?
+  REMARKS          String?       @db.Text
+  DELETE           Int           @default(0) @db.TinyInt
+  PAR_NO           String?       @db.VarChar(45)
+  MR_NO            String?       @db.VarChar(45)
+  ACCOUNT_CODE     Int?
+  ADDED_BY         Int
+  employee         employee      @relation(fields: [ADDED_BY], references: [ID])
+  createdAt        DateTime?     @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime?     @default(now()) @db.Timestamp(0)
+  condition        Condition     @default(EXCELLENT)
+  transactions     Transaction[]
 
   @@index([ITEM_NAME])
   @@index([DELETE])
@@ -104,30 +106,31 @@ enum Condition {
 }
 
 model Transaction {
-  id String @id @default(uuid())
-  status Status @default(PENDING)
-  reason String @db.VarChar(255)
-  employeeId Int
-  employee employee @relation(fields: [employeeId], references:[ID])
-  itemId Int 
-  item items @relation(fields: [itemId], references: [ID])
-  quantity Int
-  reviewedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  updatedBy Int?
-  updater users? @relation(fields: [updatedBy], references: [id])
+  id                  String                @id @default(uuid())
+  status              Status                @default(PENDING)
+  reason              String                @db.VarChar(255)
+  employeeId          Int
+  employee            employee              @relation(fields: [employeeId], references: [ID])
+  itemId              Int
+  item                items                 @relation(fields: [itemId], references: [ID])
+  quantity            Int
+  reviewedAt          DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+  updatedBy           Int?
+  updater             users?                @relation(fields: [updatedBy], references: [id])
   transactionConcerns TransactionConcerns[]
 }
-model TransactionConcerns{
-  id String @id @default(uuid())
+
+model TransactionConcerns {
+  id            String      @id @default(uuid())
   transactionId String
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-  message String
-  intentStatus Status
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  message       String
+  intentStatus  Status
 }
 
-enum Status{
+enum Status {
   APPROVED
   PENDING
   REJECTED
@@ -135,13 +138,13 @@ enum Status{
 }
 
 model Notification {
-  id String @id @default(uuid())
-  read Read @default(UNREAD)
-  message String @db.VarChar(255)
-  empId Int
-  employee employee @relation(fields: [empId], references: [ID])
-  readAt DateTime?
-  createadAt DateTime @default(now())
+  id         String    @id @default(uuid())
+  read       Read      @default(UNREAD)
+  message    String    @db.VarChar(255)
+  empId      Int
+  employee   employee  @relation(fields: [empId], references: [ID])
+  readAt     DateTime?
+  createadAt DateTime  @default(now())
 }
 
 enum Read {
@@ -150,11 +153,11 @@ enum Read {
 }
 
 model Account_request {
-  id String @id @default(uuid())
-  requestedAt DateTime @default(now())
-  approvedAt DateTime?
-  employeeId Int
-  approve Approved @default(NO)
+  id          String    @id @default(uuid())
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+  employeeId  Int
+  approve     Approved  @default(NO)
 }
 
 enum Approved {
