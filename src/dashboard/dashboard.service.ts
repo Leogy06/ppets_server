@@ -1,4 +1,4 @@
-import { condition, status } from '@generated/enums';
+import { condition, status } from '@prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 
@@ -45,7 +45,7 @@ export class DashboardService {
       }),
 
       // assigned assets
-      this.prisma.transaction.count({
+      this.prisma.transactions.count({
         where: {
           status: status.APPROVED,
           ...departmentFilter,

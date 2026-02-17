@@ -1,15 +1,12 @@
-import { status } from '@generated/enums';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import e from 'express';
+import { status } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { CreateTransactionDto } from 'src/schemas/transaction.schema';
-import { ExtendRequest } from 'src/user/dto/create-user.dto';
-import { employeeName } from 'src/utils/employee-utils';
 
 @Injectable()
 export class TransactionService {
@@ -31,7 +28,7 @@ export class TransactionService {
       }),
 
       //check if the requestor has pending transactions
-      await this.prisma.transaction.findFirst({
+      await this.prisma.transactions.findFirst({
         where: {
           status: 'PENDING',
           employeeId,
@@ -76,7 +73,7 @@ export class TransactionService {
         'You have a previous transaction. Please settle first.',
       );
 
-    const newTransaction = await this.prisma.transaction.create({
+    const newTransaction = await this.prisma.transactions.create({
       data: { ...createTransactionDto, employeeId },
     });
 
@@ -103,7 +100,7 @@ export class TransactionService {
 
     if (!employee) throw new NotFoundException('Employee not found.');
 
-    const count = await this.prisma.transaction.count({
+    const count = await this.prisma.transactions.count({
       where: {
         employee: {
           DEPARTMENT_ID: employee.DEPARTMENT_ID,
@@ -111,7 +108,7 @@ export class TransactionService {
       },
     });
 
-    const transactions = await this.prisma.transaction.findMany({
+    const transactions = await this.prisma.transactions.findMany({
       where: {
         employee: {
           CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
@@ -145,7 +142,7 @@ export class TransactionService {
 
   async approveTransaction(transactionId: string, userId: number) {
     return await this.prisma.$transaction(async (tx) => {
-      const transaction = await tx.transaction.findUnique({
+      const transaction = await tx.transactions.findUnique({
         where: { id: transactionId },
         select: {
           id: true,
@@ -175,7 +172,7 @@ export class TransactionService {
         select: { ID: true, ITEM_NAME: true, QUANTITY: true },
       });
 
-      const approvedTransaction = await tx.transaction.update({
+      const approvedTransaction = await tx.transactions.update({
         where: { id: transactionId },
         data: {
           status: 'APPROVED',
@@ -214,7 +211,7 @@ export class TransactionService {
 
   async rejectTransaction(transactionId: string, userId: number) {
     return await this.prisma.$transaction(async (tx) => {
-      const transaction = await tx.transaction.findUnique({
+      const transaction = await tx.transactions.findUnique({
         where: { id: transactionId },
         select: { id: true, itemId: true, status: true },
       });
@@ -223,7 +220,7 @@ export class TransactionService {
       if (transaction.status !== status.PENDING)
         throw new BadRequestException('Status is not pending anymore.');
 
-      const rejectedTransaction = await tx.transaction.update({
+      const rejectedTransaction = await tx.transactions.update({
         where: { id: transactionId },
         data: {
           status: 'REJECTED',
@@ -245,7 +242,7 @@ export class TransactionService {
   async getEmployeeApprovedTransaction(employeeId: number) {
     //we will also getting the returning items
 
-    return await this.prisma.transaction.findMany({
+    return await this.prisma.transactions.findMany({
       where: {
         employeeId,
         status: 'APPROVED',
@@ -266,12 +263,12 @@ export class TransactionService {
 
   //get all transaction of an employee
   async getEmployeeTransactions(employeeId: number) {
-    const count = await this.prisma.transaction.count({
+    const count = await this.prisma.transactions.count({
       where: {
         employeeId,
       },
     });
-    const transactions = await this.prisma.transaction.findMany({
+    const transactions = await this.prisma.transactions.findMany({
       where: {
         employeeId,
       },

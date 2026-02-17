@@ -1,11 +1,10 @@
 generator client {
-  provider   = "prisma-client"
-  output     = "../src/generated/client"
-  engineType = "library"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model departmentTables {
@@ -35,7 +34,7 @@ model employees {
   UPDATED_WHEN   DateTime?      @db.DateTime(0)
   DELETED        Int?           @db.TinyInt
   users          users[]
-  transactions   transaction[]
+  transactions   transactions[]
   notifications  notification[]
   items          items[]
 }
@@ -51,36 +50,36 @@ model users {
   DEPARTMENT_USER Int?
   employee        employees @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
-  transactions transaction[]
+  transactions transactions[]
 
   @@index([emp_id], map: "emp_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model items {
-  ID               Int           @id @unique(map: "ID") @default(autoincrement())
-  ITEM_NAME        String        @db.VarChar(45)
-  DESCRIPTION      String        @db.Text
-  UNIT_VALUE       Decimal       @db.Decimal(10, 2)
+  ID               Int            @id @unique(map: "ID") @default(autoincrement())
+  ITEM_NAME        String         @db.VarChar(45)
+  DESCRIPTION      String         @db.Text
+  UNIT_VALUE       Decimal        @db.Decimal(10, 2)
   QUANTITY         Int
   originalQuantity Int
-  RECEIVED_AT      DateTime      @db.DateTime(0)
-  PIS_NO           String?       @db.VarChar(45)
-  PROP_NO          String?       @db.VarChar(45)
-  SERIAL_NO        String?       @db.VarChar(45)
-  ICS_NO           String?       @db.VarChar(45)
+  RECEIVED_AT      DateTime       @db.DateTime(0)
+  PIS_NO           String?        @db.VarChar(45)
+  PROP_NO          String?        @db.VarChar(45)
+  SERIAL_NO        String?        @db.VarChar(45)
+  ICS_NO           String?        @db.VarChar(45)
   DEPARTMENT_ID    Int?
-  REMARKS          String?       @db.Text
-  DELETE           Int           @default(0) @db.TinyInt
-  PAR_NO           String?       @db.VarChar(45)
-  MR_NO            String?       @db.VarChar(45)
+  REMARKS          String?        @db.Text
+  DELETE           Int            @default(0) @db.TinyInt
+  PAR_NO           String?        @db.VarChar(45)
+  MR_NO            String?        @db.VarChar(45)
   ACCOUNT_CODE     Int?
   ADDED_BY         Int
-  employee         employees     @relation(fields: [ADDED_BY], references: [ID])
-  createdAt        DateTime?     @default(now()) @db.Timestamp(0)
-  updatedAt        DateTime?     @default(now()) @db.Timestamp(0)
-  condition        condition     @default(EXCELLENT)
-  transactions     transaction[]
+  employee         employees      @relation(fields: [ADDED_BY], references: [ID])
+  createdAt        DateTime?      @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime?      @default(now()) @db.Timestamp(0)
+  condition        condition      @default(EXCELLENT)
+  transactions     transactions[]
 
   @@index([ITEM_NAME])
   @@index([DELETE])
@@ -106,7 +105,7 @@ enum condition {
   MAINTENANCE
 }
 
-model transaction {
+model transactions {
   id                  String                @id @default(uuid())
   status              status                @default(PENDING)
   reason              String                @db.VarChar(255)
@@ -124,9 +123,9 @@ model transaction {
 }
 
 model transactionConcerns {
-  id            String      @id @default(uuid())
+  id            String       @id @default(uuid())
   transactionId String
-  transaction   transaction @relation(fields: [transactionId], references: [id])
+  transaction   transactions @relation(fields: [transactionId], references: [id])
   message       String
   intentStatus  status
 }

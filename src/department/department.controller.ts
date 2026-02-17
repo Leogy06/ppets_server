@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { DepartmentService } from './department.service';
-import { Prisma } from '@generated/client';
+import { Prisma } from '@prisma/client';
 
 @Controller('api/department')
 export class DepartmentController {

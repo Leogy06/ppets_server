@@ -8,7 +8,7 @@ export class TransactionConcernService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async create(dto: CreateTransactionConcernDto) {
-    const transaction = await this.prisma.transaction.findUnique({
+    const transaction = await this.prisma.transactions.findUnique({
       where: {
         id: dto.transactionId,
       },

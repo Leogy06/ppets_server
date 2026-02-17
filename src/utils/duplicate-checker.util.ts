@@ -1,6 +1,6 @@
 // src/utils/check-duplicate-field.ts
 
-import { PrismaClient } from '@generated/client';
+import { PrismaClient } from '@prisma/client';
 
 export async function checkDuplicateField(
   prisma: PrismaClient,

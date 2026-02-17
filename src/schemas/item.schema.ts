@@ -1,6 +1,6 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { condition } from '@generated/enums';
+import { condition } from '@prisma/client';
 
 export const createItemSchema = z
   .object({

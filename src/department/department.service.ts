@@ -1,4 +1,4 @@
-import { Prisma } from '@generated/client';
+import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 

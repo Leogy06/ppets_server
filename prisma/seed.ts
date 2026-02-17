@@ -1,9 +1,7 @@
-import { PrismaClient } from '@generated/client';
+import { PrismaClient } from '@prisma/client';
 import seedEmployees from './seeders/employee.seed';
 import 'dotenv/config';
-const prisma = new PrismaClient({
-  accelerateUrl: process.env.DATABASEURL!,
-});
+const prisma = new PrismaClient();
 
 prisma.employees.findMany();
 

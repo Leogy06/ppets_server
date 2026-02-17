@@ -1,4 +1,4 @@
-import { PrismaClient } from '@generated/client';
+import { PrismaClient } from '@prisma/client';
 
 export default async function seedEmployees(prisma: PrismaClient) {
   await prisma.employees.create({
