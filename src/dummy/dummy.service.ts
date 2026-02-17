@@ -10,7 +10,7 @@ export class DummyService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async createEmployees(employees: CreateEmployeeDto[]) {
-    const createdEmployees = await this.prisma.employee.createMany({
+    const createdEmployees = await this.prisma.employees.createMany({
       data: employees,
     });
 

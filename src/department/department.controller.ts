@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { DepartmentService } from './department.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/client';
 
 @Controller('api/department')
 export class DepartmentController {
@@ -8,7 +8,7 @@ export class DepartmentController {
 
   @Post()
   async create(
-    @Body() createDepartmentDto: Prisma.department_tableCreateInput,
+    @Body() createDepartmentDto: Prisma.departmentTablesCreateInput,
   ) {
     return await this.departmentService.create({
       ...createDepartmentDto,

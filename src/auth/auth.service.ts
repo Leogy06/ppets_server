@@ -45,7 +45,7 @@ export class AuthService {
     };
 
     //find employee
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: payload.employeeId,
       },

@@ -3,9 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { Request } from 'express';
-import { NotFoundError } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
 import { EmployeeService } from 'src/employee/employee.service';
 import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
@@ -69,7 +66,7 @@ export class ItemsService {
       });
     }
 
-    const findEmployee = await this.prisma.employee.findFirst({
+    const findEmployee = await this.prisma.employees.findFirst({
       where: {
         ID: employeeId,
       },

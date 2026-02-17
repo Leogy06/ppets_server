@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import {
   CreateEmployeeDto,
@@ -24,7 +23,7 @@ export class EmployeeService {
   ) {
     const skip = (pageIndex - 1) * pageSize;
 
-    const loggedInEmployee = await this.prisma.employee.findUnique({
+    const loggedInEmployee = await this.prisma.employees.findUnique({
       where: {
         ID: req.user.employeeId,
       },
@@ -32,7 +31,7 @@ export class EmployeeService {
 
     if (!loggedInEmployee) throw new NotFoundException('Employee not found.');
 
-    const count = await this.prisma.employee.count({
+    const count = await this.prisma.employees.count({
       where: {
         DELETED: 0,
         CURRENT_DPT_ID: loggedInEmployee?.CURRENT_DPT_ID,
@@ -42,7 +41,7 @@ export class EmployeeService {
       },
     });
 
-    const employees = await this.prisma.employee.findMany({
+    const employees = await this.prisma.employees.findMany({
       where: {
         DELETED: 0,
         CURRENT_DPT_ID: loggedInEmployee?.CURRENT_DPT_ID,
@@ -79,20 +78,20 @@ export class EmployeeService {
   ) {
     const skip = (pageIndex - 1) * pageSize;
 
-    const loggedInEmployee = await this.prisma.employee.findUnique({
+    const loggedInEmployee = await this.prisma.employees.findUnique({
       where: {
         ID: req.user.employeeId,
       },
     });
 
-    const count = await this.prisma.employee.count({
+    const count = await this.prisma.employees.count({
       where: {
         DELETED: 1,
         DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
       },
     });
 
-    const employees = await this.prisma.employee.findMany({
+    const employees = await this.prisma.employees.findMany({
       where: {
         DELETED: 1,
         DEPARTMENT_ID: loggedInEmployee?.DEPARTMENT_ID,
@@ -123,7 +122,7 @@ export class EmployeeService {
 
   //create employee by admin
   async create(createEmployeeDto: CreateEmployeeDto, req: ExtendRequest) {
-    const loggedInEmployee = await this.prisma.employee.findUnique({
+    const loggedInEmployee = await this.prisma.employees.findUnique({
       where: {
         ID: req.user.employeeId,
       },
@@ -133,7 +132,7 @@ export class EmployeeService {
       throw new NotFoundException('Employee logged in not found.');
 
     //check if id number already exist
-    const isIdNumberDup = await this.prisma.employee.findFirst({
+    const isIdNumberDup = await this.prisma.employees.findFirst({
       where: {
         ID_NUMBER: createEmployeeDto.ID_NUMBER,
       },
@@ -142,7 +141,7 @@ export class EmployeeService {
     if (isIdNumberDup)
       throw new BadRequestException('ID number already exist.');
 
-    return await this.prisma.employee.create({
+    return await this.prisma.employees.create({
       data: {
         ...createEmployeeDto,
         CURRENT_DPT_ID: loggedInEmployee?.DEPARTMENT_ID,
@@ -161,7 +160,7 @@ export class EmployeeService {
     if (isNaN(id))
       throw new BadRequestException('Employee ID must be a number.');
 
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: id,
       },
@@ -185,7 +184,7 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
     req: ExtendRequest,
   ) {
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: id,
       },
@@ -193,7 +192,7 @@ export class EmployeeService {
 
     if (!employee) throw new NotFoundException('Employee not found.');
 
-    const updatedEmployee = await this.prisma.employee.update({
+    const updatedEmployee = await this.prisma.employees.update({
       where: {
         ID: id,
       },
@@ -220,7 +219,7 @@ export class EmployeeService {
       },
     });
     //deactivate employee
-    const deactEmployee = await this.prisma.employee.update({
+    const deactEmployee = await this.prisma.employees.update({
       where: {
         ID: employeeId,
       },
@@ -250,7 +249,7 @@ export class EmployeeService {
       },
     });
     //restore employee
-    const restoreEmployee = await this.prisma.employee.update({
+    const restoreEmployee = await this.prisma.employees.update({
       where: {
         ID: employeeId,
       },
@@ -268,7 +267,7 @@ export class EmployeeService {
   }
 
   async createMany(createEmployeeDto: CreateEmployeeDto[]) {
-    return await this.prisma.employee.createMany({
+    return await this.prisma.employees.createMany({
       data: createEmployeeDto.map((emp) => ({
         ...emp,
         CREATED_WHEN: new Date(),
@@ -281,7 +280,7 @@ export class EmployeeService {
   //role is employee by default
   async registerEmployee(registerEmployeeDto: CreateEmployeeDto) {
     //check if the creating user is an employee
-    const employee = await this.prisma.employee.findFirst({
+    const employee = await this.prisma.employees.findFirst({
       where: {
         ID_NUMBER: registerEmployeeDto.ID_NUMBER,
       },
@@ -292,7 +291,7 @@ export class EmployeeService {
         'ID number is not in the registered employees.',
       );
 
-    return await this.prisma.employee.create({
+    return await this.prisma.employees.create({
       data: registerEmployeeDto,
     });
   }

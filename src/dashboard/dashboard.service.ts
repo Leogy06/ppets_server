@@ -1,13 +1,13 @@
+import { condition, status } from '@generated/enums';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { Condition, Status } from '@prisma/client';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async dashboard(empId: number) {
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: { ID: empId },
       select: { ID: true, CURRENT_DPT_ID: true },
     });
@@ -39,7 +39,7 @@ export class DashboardService {
       this.prisma.items.count({
         where: {
           QUANTITY: { gt: 0 },
-          condition: Condition.EXCELLENT,
+          condition: condition.EXCELLENT,
           ...departmentFilter,
         },
       }),
@@ -47,7 +47,7 @@ export class DashboardService {
       // assigned assets
       this.prisma.transaction.count({
         where: {
-          status: Status.APPROVED,
+          status: status.APPROVED,
           ...departmentFilter,
         },
       }),
@@ -55,7 +55,7 @@ export class DashboardService {
       // maintenance assets
       this.prisma.items.count({
         where: {
-          condition: Condition.MAINTENANCE,
+          condition: condition.MAINTENANCE,
           ...departmentFilter,
         },
       }),
@@ -63,13 +63,13 @@ export class DashboardService {
       // repair assets
       this.prisma.items.count({
         where: {
-          condition: Condition.REPAIR,
+          condition: condition.REPAIR,
           ...departmentFilter,
         },
       }),
 
       // employees
-      this.prisma.employee.count({
+      this.prisma.employees.count({
         where: {
           CURRENT_DPT_ID: employee.CURRENT_DPT_ID,
           DELETED: 0,

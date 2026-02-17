@@ -6,7 +6,7 @@ export class AccountRequestsService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async create(createAccountRequestDto: any) {
-    return await this.prisma.account_request.create({
+    return await this.prisma.accountRequest.create({
       data: createAccountRequestDto,
     });
   }

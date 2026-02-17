@@ -1,5 +1,4 @@
 import {
-  BadGatewayException,
   BadRequestException,
   Injectable,
   NotFoundException,
@@ -34,7 +33,7 @@ export class UserService {
           username: createUserDto.username,
         },
       }),
-      await this.prisma.employee.findUnique({
+      await this.prisma.employees.findUnique({
         where: {
           ID: createUserDto.emp_id,
         },
@@ -62,7 +61,7 @@ export class UserService {
   async getUserEmployee(empId: number) {
     if (!empId) throw new BadRequestException('Employee ID is required.');
 
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: empId,
       },
@@ -119,7 +118,7 @@ export class UserService {
   }
 
   async adminCreateUser(empId: number, role: number) {
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: empId,
       },

@@ -1,6 +1,6 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { Condition } from '@prisma/client';
+import { condition } from '@generated/enums';
 
 export const createItemSchema = z
   .object({
@@ -40,7 +40,7 @@ export class CreateItemDto extends createZodDto(createItemSchema) {}
 export const updateItemSchema = createItemSchema
   .partial()
   .extend({
-    condition: z.enum(Condition).optional(),
+    condition: z.enum(condition).optional(),
     ID: z.number().nonnegative().optional(),
   })
   .strict();

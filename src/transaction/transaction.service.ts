@@ -1,9 +1,9 @@
+import { status } from '@generated/enums';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Status } from '@prisma/client';
 import e from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { NotificationService } from 'src/notification/notification.service';
@@ -26,7 +26,7 @@ export class TransactionService {
       await this.prisma.items.findUnique({
         where: { ID: createTransactionDto.itemId },
       }),
-      await this.prisma.employee.findUnique({
+      await this.prisma.employees.findUnique({
         where: { ID: employeeId },
       }),
 
@@ -95,7 +95,7 @@ export class TransactionService {
   ) {
     const skip = pageSize * (pageIndex - 1);
 
-    const employee = await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employees.findUnique({
       where: {
         ID: employeeId,
       },
@@ -157,7 +157,7 @@ export class TransactionService {
       });
 
       if (!transaction) throw new NotFoundException('Transaction not found.');
-      if (transaction.status !== Status.PENDING)
+      if (transaction.status !== status.PENDING)
         throw new BadRequestException('Status is not pending anymore.');
 
       const item = await tx.items.findUnique({
@@ -220,7 +220,7 @@ export class TransactionService {
       });
 
       if (!transaction) throw new NotFoundException('Transaction not found.');
-      if (transaction.status !== Status.PENDING)
+      if (transaction.status !== status.PENDING)
         throw new BadRequestException('Status is not pending anymore.');
 
       const rejectedTransaction = await tx.transaction.update({

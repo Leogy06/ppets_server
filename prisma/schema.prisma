@@ -1,13 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client"
+  output     = "../src/generated/client"
+  engineType = "library"
 }
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
-model department_table {
+model departmentTables {
   ID              Int       @id @default(autoincrement())
   DEPARTMENT_NAME String?   @db.Text
   CODE            String?   @db.VarChar(50)
@@ -19,7 +20,7 @@ model department_table {
   @@index([ID], map: "ID")
 }
 
-model employee {
+model employees {
   ID             Int            @id @default(autoincrement())
   ID_NUMBER      Int
   FIRSTNAME      String         @db.VarChar(255)
@@ -34,23 +35,23 @@ model employee {
   UPDATED_WHEN   DateTime?      @db.DateTime(0)
   DELETED        Int?           @db.TinyInt
   users          users[]
-  transactions   Transaction[]
-  notifications  Notification[]
+  transactions   transaction[]
+  notifications  notification[]
   items          items[]
 }
 
 model users {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   emp_id          Int
-  password        String   @db.VarChar(255)
-  email           String?  @unique @db.VarChar(255)
+  password        String    @db.VarChar(255)
+  email           String?   @unique @db.VarChar(255)
   role            Int
-  username        String?  @unique @db.VarChar(45)
-  is_active       Int?     @default(1) @db.TinyInt
+  username        String?   @unique @db.VarChar(45)
+  is_active       Int?      @default(1) @db.TinyInt
   DEPARTMENT_USER Int?
-  employee        employee @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
+  employee        employees @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
-  transactions Transaction[]
+  transactions transaction[]
 
   @@index([emp_id], map: "emp_id")
 }
@@ -75,11 +76,11 @@ model items {
   MR_NO            String?       @db.VarChar(45)
   ACCOUNT_CODE     Int?
   ADDED_BY         Int
-  employee         employee      @relation(fields: [ADDED_BY], references: [ID])
+  employee         employees     @relation(fields: [ADDED_BY], references: [ID])
   createdAt        DateTime?     @default(now()) @db.Timestamp(0)
   updatedAt        DateTime?     @default(now()) @db.Timestamp(0)
-  condition        Condition     @default(EXCELLENT)
-  transactions     Transaction[]
+  condition        condition     @default(EXCELLENT)
+  transactions     transaction[]
 
   @@index([ITEM_NAME])
   @@index([DELETE])
@@ -96,7 +97,7 @@ model account_item_tbl {
   DELETED       Int?      @default(0) @db.TinyInt
 }
 
-enum Condition {
+enum condition {
   EXCELLENT
   GOOD
   FAIR
@@ -105,12 +106,12 @@ enum Condition {
   MAINTENANCE
 }
 
-model Transaction {
+model transaction {
   id                  String                @id @default(uuid())
-  status              Status                @default(PENDING)
+  status              status                @default(PENDING)
   reason              String                @db.VarChar(255)
   employeeId          Int
-  employee            employee              @relation(fields: [employeeId], references: [ID])
+  employee            employees             @relation(fields: [employeeId], references: [ID])
   itemId              Int
   item                items                 @relation(fields: [itemId], references: [ID])
   quantity            Int
@@ -119,40 +120,40 @@ model Transaction {
   updatedAt           DateTime              @default(now())
   updatedBy           Int?
   updater             users?                @relation(fields: [updatedBy], references: [id])
-  transactionConcerns TransactionConcerns[]
+  transactionConcerns transactionConcerns[]
 }
 
-model TransactionConcerns {
+model transactionConcerns {
   id            String      @id @default(uuid())
   transactionId String
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transaction   transaction @relation(fields: [transactionId], references: [id])
   message       String
-  intentStatus  Status
+  intentStatus  status
 }
 
-enum Status {
+enum status {
   APPROVED
   PENDING
   REJECTED
   CANCEL
 }
 
-model Notification {
+model notification {
   id         String    @id @default(uuid())
-  read       Read      @default(UNREAD)
+  read       read      @default(UNREAD)
   message    String    @db.VarChar(255)
   empId      Int
-  employee   employee  @relation(fields: [empId], references: [ID])
+  employee   employees @relation(fields: [empId], references: [ID])
   readAt     DateTime?
   createadAt DateTime  @default(now())
 }
 
-enum Read {
+enum read {
   READ
   UNREAD
 }
 
-model Account_request {
+model accountRequest {
   id          String    @id @default(uuid())
   requestedAt DateTime  @default(now())
   approvedAt  DateTime?
