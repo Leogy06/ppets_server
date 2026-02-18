@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `department_table` (
+CREATE TABLE `departmentTables` (
     `ID` INTEGER NOT NULL AUTO_INCREMENT,
     `DEPARTMENT_NAME` TEXT NULL,
     `CODE` VARCHAR(50) NULL,
@@ -13,12 +13,12 @@ CREATE TABLE `department_table` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `employee` (
+CREATE TABLE `employees` (
     `ID` INTEGER NOT NULL AUTO_INCREMENT,
-    `ID_NUMBER` INTEGER NULL,
-    `FIRSTNAME` VARCHAR(255) NULL,
+    `ID_NUMBER` INTEGER NOT NULL,
+    `FIRSTNAME` VARCHAR(255) NOT NULL,
     `MIDDLENAME` VARCHAR(255) NULL,
-    `LASTNAME` VARCHAR(255) NULL,
+    `LASTNAME` VARCHAR(255) NOT NULL,
     `SUFFIX` VARCHAR(255) NULL,
     `DEPARTMENT_ID` INTEGER NULL,
     `CURRENT_DPT_ID` INTEGER NULL,
@@ -36,7 +36,7 @@ CREATE TABLE `users` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `emp_id` INTEGER NOT NULL,
     `password` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NULL,
     `role` INTEGER NOT NULL,
     `username` VARCHAR(45) NULL,
     `is_active` TINYINT NULL DEFAULT 1,
@@ -55,6 +55,7 @@ CREATE TABLE `items` (
     `DESCRIPTION` TEXT NOT NULL,
     `UNIT_VALUE` DECIMAL(10, 2) NOT NULL,
     `QUANTITY` INTEGER NOT NULL,
+    `originalQuantity` INTEGER NOT NULL,
     `RECEIVED_AT` DATETIME(0) NOT NULL,
     `PIS_NO` VARCHAR(45) NULL,
     `PROP_NO` VARCHAR(45) NULL,
@@ -66,7 +67,7 @@ CREATE TABLE `items` (
     `PAR_NO` VARCHAR(45) NULL,
     `MR_NO` VARCHAR(45) NULL,
     `ACCOUNT_CODE` INTEGER NULL,
-    `ADDED_BY` INTEGER NULL,
+    `ADDED_BY` INTEGER NOT NULL,
     `createdAt` TIMESTAMP(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
     `updatedAt` TIMESTAMP(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
     `condition` ENUM('EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'REPAIR', 'MAINTENANCE') NOT NULL DEFAULT 'EXCELLENT',
@@ -93,7 +94,7 @@ CREATE TABLE `account_item_tbl` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Transaction` (
+CREATE TABLE `transactions` (
     `id` VARCHAR(191) NOT NULL,
     `status` ENUM('APPROVED', 'PENDING', 'REJECTED', 'CANCEL') NOT NULL DEFAULT 'PENDING',
     `reason` VARCHAR(255) NOT NULL,
@@ -109,23 +110,55 @@ CREATE TABLE `Transaction` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Notification` (
+CREATE TABLE `transactionConcerns` (
+    `id` VARCHAR(191) NOT NULL,
+    `transactionId` VARCHAR(191) NOT NULL,
+    `message` VARCHAR(191) NOT NULL,
+    `intentStatus` ENUM('APPROVED', 'PENDING', 'REJECTED', 'CANCEL') NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `notification` (
     `id` VARCHAR(191) NOT NULL,
     `read` ENUM('READ', 'UNREAD') NOT NULL DEFAULT 'UNREAD',
+    `message` VARCHAR(255) NOT NULL,
+    `empId` INTEGER NOT NULL,
     `readAt` DATETIME(3) NULL,
     `createadAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
-ALTER TABLE `users` ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `employee`(`ID`) ON DELETE NO ACTION ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE `accountRequest` (
+    `id` VARCHAR(191) NOT NULL,
+    `requestedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `approvedAt` DATETIME(3) NULL,
+    `employeeId` INTEGER NOT NULL,
+    `approve` ENUM('NO', 'YES') NOT NULL DEFAULT 'NO',
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_employeeId_fkey` FOREIGN KEY (`employeeId`) REFERENCES `employee`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `employees`(`ID`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `items`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `items` ADD CONSTRAINT `items_ADDED_BY_fkey` FOREIGN KEY (`ADDED_BY`) REFERENCES `employees`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_employeeId_fkey` FOREIGN KEY (`employeeId`) REFERENCES `employees`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `items`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `transactions` ADD CONSTRAINT `transactions_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `transactionConcerns` ADD CONSTRAINT `transactionConcerns_transactionId_fkey` FOREIGN KEY (`transactionId`) REFERENCES `transactions`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `notification` ADD CONSTRAINT `notification_empId_fkey` FOREIGN KEY (`empId`) REFERENCES `employees`(`ID`) ON DELETE RESTRICT ON UPDATE CASCADE;

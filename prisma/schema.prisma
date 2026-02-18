@@ -66,7 +66,7 @@ model items {
   RECEIVED_AT      DateTime       @db.DateTime(0)
   PIS_NO           String?        @db.VarChar(45)
   PROP_NO          String?        @db.VarChar(45)
-  SERIAL_NO        String?        @db.VarChar(45)
+  SERIAL_NO        String?        @unique @db.VarChar(45)
   ICS_NO           String?        @db.VarChar(45)
   DEPARTMENT_ID    Int?
   REMARKS          String?        @db.Text
