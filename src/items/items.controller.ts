@@ -13,7 +13,6 @@ import {
 import { ItemsService } from './items.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateItemDto, UpdateItemDto } from 'src/schemas/item.schema';
-import type { Request } from 'express';
 import { ExtendRequest } from 'src/user/dto/create-user.dto';
 
 @UseGuards(JwtAuthGuard)
