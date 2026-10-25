@@ -1,0 +1,15 @@
+.git
+node_modules
+dist
+dist-seed
+coverage
+.env
+.env.*
+.local*
+.tmp
+tmp
+artifacts
+test-results
+playwright-report
+*.log
+*.tsbuildinfo

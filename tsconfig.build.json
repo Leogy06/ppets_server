@@ -1,4 +1,15 @@
 {
-  "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+  "extends": "./tsconfig.mvp.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": [
+    "src/main.ts",
+    "src/app.module.ts",
+    "src/core/**/*.ts",
+    "src/mvp/**/*.ts",
+    "src/database/database.service.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

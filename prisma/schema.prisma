@@ -50,6 +50,10 @@ model users {
   DEPARTMENT_USER Int?
   employee        employees @relation(fields: [emp_id], references: [ID], onDelete: NoAction, map: "users_ibfk_1")
 
+  emailVerifiedAt DateTime?
+  authSessions    AuthSession[]
+  authTokens      AuthToken[]
+
   transactions transactions[]
 
   @@index([emp_id], map: "emp_id")
@@ -114,6 +118,7 @@ model transactions {
   itemId              Int
   item                items                 @relation(fields: [itemId], references: [ID])
   quantity            Int
+  returnedAt          DateTime?
   reviewedAt          DateTime?
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @default(now())
@@ -135,6 +140,7 @@ enum status {
   PENDING
   REJECTED
   CANCEL
+  RETURNED
 }
 
 model notification {
@@ -163,4 +169,32 @@ model accountRequest {
 enum Approved {
   NO
   YES
+}
+
+model AuthSession {
+  tokenHash String   @id @db.VarChar(64)
+  userId    Int
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuthToken {
+  tokenHash String       @id @db.VarChar(64)
+  userId    Int
+  user      users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   TokenPurpose
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum TokenPurpose {
+  VERIFY_EMAIL
+  RESET_PASSWORD
 }

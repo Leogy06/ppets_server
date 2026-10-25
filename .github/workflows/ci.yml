@@ -1,0 +1,63 @@
+name: Server CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: ppets_ci_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+    env:
+      NODE_ENV: test
+      DATABASE_URL: mysql://root@127.0.0.1:3306/ppets_ci_test
+      CLIENT_BASEURL: http://localhost:3002
+      SEED_ADMIN_EMAIL: admin@example.test
+      EMAIL_MODE: stub
+      EMAIL_STUB_DIR: .local-mail-ci
+      MVP_DISPOSABLE_TEST: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Generate temporary test credentials
+        shell: bash
+        run: |
+          node <<'NODE'
+          const { randomBytes } = require('node:crypto');
+          const { appendFileSync } = require('node:fs');
+          for (const name of ['SESSION_SECRET', 'SEED_ADMIN_PASSWORD']) {
+            const value = randomBytes(32).toString('hex');
+            console.log('::add-mask::' + value);
+            appendFileSync(process.env.GITHUB_ENV, `${name}=${value}\n`);
+          }
+          NODE
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run migrate:deploy
+      - run: npm run seed:mvp
+      - name: Compile real database acceptance checks
+        run: npx --no-install tsc -p tsconfig.mvp.json --outDir .tmp/live --rootDir . --noEmit false
+      - name: Verify real authentication and equipment lifecycle
+        run: |
+          node .tmp/live/test/mvp/live-auth.js
+          node .tmp/live/test/mvp/live-flow.js

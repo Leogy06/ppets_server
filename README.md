@@ -1,23 +1,40 @@
-Property Plant & Equipment (PPE) Tracking System – Backend
+# PPETS MVP API
 
-A NestJS backend that powers a system for managing and tracking Property, Plant, and Equipment. It handles all the business logic, keeps records organized, and allows integration with frontend apps.
+NestJS 11, Prisma 6, and MySQL API for verified member accounts and equipment request -> admin approval -> member return. The runtime exposes only the focused MVP controllers; earlier modules remain in source and are not mounted.
 
-What It Does
+Read [AGENTS.md](AGENTS.md) and [development](docs/DEVELOPMENT.md) for setup, environment variables, routes, checks, and migration boundaries.
 
-Tracks company assets like buildings, machines, and equipment
+## Quick setup
 
-Lets users add, update, and view assets
+From this directory, with Node.js 22 or newer and a dedicated local MySQL database:
 
-Keeps logs of all changes and updates
+```powershell
+npm.cmd ci
+Copy-Item .env.example .env
+```
 
-Supports user authentication and roles
+Fill in the private values in `.env`. Inspect your database target and migration state before applying migrations. For a newly created disposable local database:
 
-Tech Behind It
+```powershell
+npm.cmd run migrate:deploy
+npm.cmd run seed:mvp
+npm.cmd run dev
+```
 
-NestJS – backend framework
+The API defaults to port 4001. Set `PORT` to an available port if another service uses it. The sibling workspace's Compose setup starts the complete web/API/database application and generates local secrets without printing them.
 
-MySQL/PostgreSQL – database
+## Checks
 
-JWT – authentication
+```powershell
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+npm.cmd audit --audit-level=high
+```
 
-Swagger – interactive API documentation
+`npm.cmd run test:live` additionally tests real HTTP auth, reset/login overlap, roles, stock, and concurrent transitions. It requires `MVP_DISPOSABLE_TEST=1`, a dedicated database whose name ends in `_test`, a migrated/seeded schema, and the configured seed admin credentials. It creates fictional test records.
+
+All API errors use `{ error: { code, message, requestId } }`. Logs contain request IDs, method/path/status/duration and server-side exception stacks; request bodies, cookies, and query strings are not logged. `GET /health` reports liveness after successful startup.
+
+Email verification/reset is backed by a private file stub behind `MailSender`. It does not deliver inbox email. The local setup guide explains retrieving those links safely.

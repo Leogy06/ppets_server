@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "incremental": false
+  },
+  "include": [
+    "src/main.ts",
+    "src/app.module.ts",
+    "src/core/**/*.ts",
+    "src/mvp/**/*.ts",
+    "src/database/database.service.ts",
+    "prisma/seed-mvp.ts",
+    "prisma/seed-mvp.spec.ts",
+    "test/mvp/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

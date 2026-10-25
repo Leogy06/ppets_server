@@ -1,0 +1,21 @@
+{
+  "transform": {
+    "^.+[.]tsx?$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.mvp.json"
+      }
+    ]
+  },
+  "testMatch": [
+    "\u003crootDir\u003e/src/core/**/*.spec.ts",
+    "\u003crootDir\u003e/src/mvp/**/*.spec.ts",
+    "\u003crootDir\u003e/prisma/seed-mvp.spec.ts",
+    "\u003crootDir\u003e/test/mvp/**/*.spec.ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "moduleNameMapper": {
+    "^src/(.*)$": "\u003crootDir\u003e/src/$1"
+  }
+}

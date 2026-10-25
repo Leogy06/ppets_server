@@ -1,21 +1,35 @@
+import 'reflect-metadata';
+import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import cookieParser from 'cookie-parser';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { parseConfig } from './core/config';
+import { configureApp } from './core/http';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  //cookie parser
-  app.use(cookieParser()); // enable reading cookies
-  app.enableCors({
-    origin: process.env.CLIENT_BASEURL, //client url
-    credentials: true, //allowing cookies
+async function bootstrap(): Promise<void> {
+  if (existsSync('.env.development')) process.loadEnvFile('.env.development');
+  const config = parseConfig(process.env);
+  const app = await NestFactory.create(AppModule, {
+    logger: false,
+    bodyParser: false,
   });
-  app.useGlobalPipes(new ZodValidationPipe());
-
-  const port = process.env.PORT || 4001;
-  await app.listen(port);
-  console.log(`App is listening on Port ${port}`);
+  configureApp(app, config);
+  app.enableShutdownHooks();
+  await app.listen(config.PORT);
+  console.log(
+    JSON.stringify({
+      level: 'info',
+      event: 'server_started',
+      port: config.PORT,
+    }),
+  );
 }
-bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error(
+    JSON.stringify({
+      level: 'error',
+      event: 'startup_failed',
+      message: error instanceof Error ? error.message : 'Startup failed',
+    }),
+  );
+  process.exitCode = 1;
+});

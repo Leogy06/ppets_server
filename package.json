@@ -1,25 +1,32 @@
 {
-  "name": "server",
+  "name": "ppets-server",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "build": "nest build && npm run build:seed",
+    "format": "prettier --write \"src/core/**/*.ts\" \"src/mvp/**/*.ts\" src/main.ts src/app.module.ts src/database/database.service.ts prisma/seed-mvp.ts prisma/seed-mvp.spec.ts \"test/mvp/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "lint": "eslint --config eslint.mvp.config.mjs src/core src/mvp src/main.ts src/app.module.ts src/database/database.service.ts prisma/seed-mvp.ts prisma/seed-mvp.spec.ts test/mvp --no-error-on-unmatched-pattern",
+    "test": "jest --config jest.mvp.config.json --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
-    "postinstall": "npm run prisma:generate"
+    "postinstall": "npm run prisma:generate",
+    "typecheck": "tsc --noEmit -p tsconfig.mvp.json",
+    "lint:legacy": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test:legacy": "jest --config package.json",
+    "seed:mvp": "tsx prisma/seed-mvp.ts",
+    "migrate:deploy": "prisma migrate deploy",
+    "build:seed": "tsc prisma/seed-mvp.ts --outDir dist-seed --module node16 --moduleResolution node16 --target ES2023 --esModuleInterop --strict --skipLibCheck",
+    "test:live": "tsc -p tsconfig.mvp.json --outDir .tmp/live --rootDir . --declaration false && node .tmp/live/test/mvp/live-auth.js && node .tmp/live/test/mvp/live-flow.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -30,16 +37,19 @@
     "@nestjs/platform-express": "^11.1.6",
     "@nestjs/platform-socket.io": "^11.1.8",
     "@nestjs/websockets": "^11.1.8",
-    "@prisma/client": "^6.19.2",
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "helmet": "^8.3.0",
     "nestjs-zod": "^5.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "prisma": "^6.19.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "express": "^5.2.1"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -63,7 +73,6 @@
     "globals": "^16.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
-    "prisma": "^6.19.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
@@ -90,5 +99,14 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "overrides": {
+    "brace-expansion@^1.0.0": "1.1.21",
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "@nestjs/platform-express": {
+      "multer": "2.5.0"
+    }
   }
 }
